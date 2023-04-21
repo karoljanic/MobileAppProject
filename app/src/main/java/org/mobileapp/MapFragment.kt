@@ -1,17 +1,12 @@
 package org.mobileapp
 
-import android.Manifest
 import android.content.*
-import android.content.pm.PackageManager
 import android.os.*
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import org.mobileapp.containers.MapLayoutContainer
-import org.mobileapp.config.MapConfig
+import org.mobileapp.settings.Settings
 import org.osmdroid.util.GeoPoint
 
 class MapFragment : Fragment() {
@@ -26,7 +21,7 @@ class MapFragment : Fragment() {
     ): View {
         layout = MapLayoutContainer(activity as Context, container, inflater)
         layout.myLocation.setOnClickListener {
-            layout.setLocation(MapConfig.getLocation())
+            layout.setLocation(GeoPoint(Settings.getLastLocation()))
         }
 
         return layout.rootView

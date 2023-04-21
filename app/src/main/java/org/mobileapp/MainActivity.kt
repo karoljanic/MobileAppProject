@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import org.mobileapp.config.MapConfig.initPreferences
+import org.mobileapp.settings.Settings.initPreferences
 import org.osmdroid.config.Configuration
 
 class MainActivity : AppCompatActivity() {

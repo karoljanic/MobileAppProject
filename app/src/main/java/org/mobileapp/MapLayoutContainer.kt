@@ -1,13 +1,12 @@
-package org.mobileapp.containers
+package org.mobileapp
 
 import android.content.Context
-import android.location.Location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mobileapp.R
-import org.mobileapp.config.MapConfig
+import org.mobileapp.settings.Settings
 import org.osmdroid.api.IMapController
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
@@ -29,13 +28,13 @@ data class MapLayoutContainer(
         mapView.isTilesScaledToDpi = true
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
-        mapView.maxZoomLevel = MapConfig.getMaxZoom()
-        mapView.minZoomLevel = MapConfig.getMinZoom()
+        mapView.maxZoomLevel = Settings.getMaxMapZoom()
+        mapView.minZoomLevel = Settings.getMinMapZoom()
         mapView.setScrollableAreaLimitDouble(BoundingBox(85.0, 180.0, -85.0, -180.0))
 
         mapView.zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
-        mapController.setZoom(MapConfig.getZoom())
-        mapController.setCenter(MapConfig.getDefaultLocation())
+        mapController.setZoom(Settings.getMapZoom())
+        mapController.setCenter(GeoPoint(Settings.getDefaultLocation()))
     }
 
     fun setLocation(location: GeoPoint, animated: Boolean = false) {
