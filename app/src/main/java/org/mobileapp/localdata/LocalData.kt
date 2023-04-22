@@ -1,4 +1,4 @@
-package org.mobileapp.local_data
+package org.mobileapp.localdata
 
 import android.content.Context
 import android.database.Cursor
@@ -23,7 +23,6 @@ object LocalData {
         return stream
     }
 
-
     fun getFileSize(context: Context, uri: Uri): Long {
         val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
 
@@ -35,7 +34,6 @@ object LocalData {
             size
         } else 0
     }
-
 
     fun getFileName(context: Context, uri: Uri): String {
         val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)

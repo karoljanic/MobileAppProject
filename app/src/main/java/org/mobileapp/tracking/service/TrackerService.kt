@@ -19,8 +19,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.mobileapp.local_data.LocalData
-import org.mobileapp.local_data.TrackLocalData
+import org.mobileapp.localdata.LocalData
+import org.mobileapp.localdata.TrackLocalData
 import org.mobileapp.notifications.TrackingNotificationBuilder
 import org.mobileapp.settings.Settings
 import org.mobileapp.tracking.enums.ServiceAction
@@ -164,8 +164,30 @@ class TrackerService : Service(), SensorEventListener {
         track.stepCount = steps
     }
 
+    fun clearTrack() {
+        track = Track()
+        LocalData.deleteTempFile(this)
+        serviceStatus = ServiceStatus.IS_NOT_RUNNING
 
-    private fun resumeTracking() {
+        Settings.setCurrentServiceStatus(serviceStatus)
+        stopForeground(STOP_FOREGROUND_DETACH)
+        notificationManager.cancel(Settings.TRACKER_SERVICE_NOTIFICATION_ID)
+    }
+
+    fun getStatus(): ServiceStatus { return serviceStatus }
+
+    fun getBindStatus(): ServiceBindStatus { return serviceBindStatus }
+
+    fun getCurrentLocation(): Location { return lastLocation }
+
+    fun getTrack(): Track { return track }
+
+    fun isGpsProviderActive(): Boolean { return gpsProviderActive }
+
+    fun isNetworkProviderActive(): Boolean { return networkProviderActive }
+
+
+    fun resumeTracking() {
         track = TrackLocalData.readTrack(this, LocalData.getTempFileUri(this))
         serviceIsResumed = true
 
@@ -173,7 +195,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun startTracking(newTrack: Boolean) {
+    fun startTracking(newTrack: Boolean = true) {
         addGpsLocationListener()
         addNetworkLocationListener()
 
@@ -197,7 +219,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun stopTracking() {
+    fun stopTracking() {
         CoroutineScope(Dispatchers.IO).launch { TrackLocalData.saveTempTrackSuspended(this@TrackerService, track) }
 
         serviceStatus = ServiceStatus.IS_PAUSED
@@ -208,17 +230,6 @@ class TrackerService : Service(), SensorEventListener {
 
         displayNotification()
         stopForeground(STOP_FOREGROUND_DETACH)
-    }
-
-
-    fun clearTrack() {
-        track = Track()
-        LocalData.deleteTempFile(this)
-        serviceStatus = ServiceStatus.IS_NOT_RUNNING
-
-        Settings.setCurrentServiceStatus(serviceStatus)
-        stopForeground(STOP_FOREGROUND_DETACH)
-        notificationManager.cancel(Settings.TRACKER_SERVICE_NOTIFICATION_ID)
     }
 
 
@@ -263,7 +274,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun addGpsLocationListener() {
+    fun addGpsLocationListener() {
         if (!gpsLocationListenerRegistered) {
             gpsProviderActive = LocationUtil.isGpsEnabled(locationManager)
             if (gpsProviderActive) {
@@ -286,7 +297,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun addNetworkLocationListener() {
+    fun addNetworkLocationListener() {
         if (!networkLocationListenerRegistered) {
             networkProviderActive = LocationUtil.isNetworkEnabled(locationManager)
             if (networkProviderActive) {
@@ -308,7 +319,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun removeGpsLocationListener() {
+    fun removeGpsLocationListener() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.removeUpdates(gpsLocationListener)
             gpsLocationListenerRegistered = false
@@ -316,7 +327,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    private fun removeNetworkLocationListener() {
+    fun removeNetworkLocationListener() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.removeUpdates(networkLocationListener)
             networkLocationListenerRegistered = false
@@ -358,9 +369,9 @@ class TrackerService : Service(), SensorEventListener {
             previousLocation = track.trackNodes[numberOfNodes - 1].getLocation()
         }
 
-        val shouldBeAdded: Boolean = (LocationUtil.isRecentEnough(lastLocation) &&
-                LocationUtil.isAccurateEnough(lastLocation, Settings.LOCATION_ACCURACY_THRESHOLD) &&
-                LocationUtil.isDifferentEnough(previousLocation, lastLocation, Settings.ACCURACY_MULTIPLIER))
+        val shouldBeAdded: Boolean = LocationUtil.isRecentEnough(lastLocation) &&
+                LocationUtil.isAccurateEnough(lastLocation, Settings.LOCATION_ACCURACY_THRESHOLD)  &&
+                LocationUtil.isDifferentEnough(previousLocation, lastLocation, Settings.ACCURACY_MULTIPLIER)
 
         if (shouldBeAdded) {
             track.trackNodes.add(TrackNode(lastLocation))

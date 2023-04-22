@@ -1,4 +1,4 @@
-package org.mobileapp.local_data
+package org.mobileapp.localdata
 
 import android.content.Context
 import android.net.Uri

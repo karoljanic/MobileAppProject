@@ -1,19 +1,25 @@
 package org.mobileapp
 
 import android.content.Context
+import android.location.Location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.mobileapp.R
 import org.mobileapp.settings.Settings
+import org.mobileapp.tracking.enums.ServiceStatus
+import org.mobileapp.tracking.track.Track
 import org.osmdroid.api.IMapController
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.OverlayItem
+import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 
-data class MapLayoutContainer(
+class MapLayoutContainer(
     private var context: Context,
     private var container: ViewGroup?,
     private var inflater: LayoutInflater
@@ -23,6 +29,9 @@ data class MapLayoutContainer(
 
     private var mapView: MapView = rootView.findViewById(R.id.map)
     private var mapController: IMapController = mapView.controller
+
+    private var currentPositionOverlay: ItemizedIconOverlay<OverlayItem>
+    private var currentTrackOverlay: Polyline
 
     init {
         mapView.isTilesScaledToDpi = true
@@ -35,13 +44,32 @@ data class MapLayoutContainer(
         mapView.zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
         mapController.setZoom(Settings.getMapZoom())
         mapController.setCenter(GeoPoint(Settings.getDefaultLocation()))
+
+        mapView.overlays.clear()
+
+        currentPositionOverlay = MapOverlayBuilder.createLocationOverlay(context, Settings.getDefaultLocation(), ServiceStatus.IS_NOT_RUNNING)
+        mapView.overlays.add(currentPositionOverlay)
+
+        currentTrackOverlay = Polyline()
     }
 
-    fun setLocation(location: GeoPoint, animated: Boolean = false) {
+    fun setLocation(location: Location, animated: Boolean = false) {
         when (animated) {
-            true -> mapController.animateTo(location)
-            false -> mapController.setCenter(location)
+            true -> mapController.animateTo(GeoPoint(location))
+            false -> mapController.setCenter(GeoPoint(location))
         }
+    }
+
+    fun markCurrentPosition(location: Location) {
+        mapView.overlays.remove(currentPositionOverlay)
+        currentPositionOverlay = MapOverlayBuilder.createLocationOverlay(context, location, ServiceStatus.IS_NOT_RUNNING)
+        mapView.overlays.add(currentPositionOverlay)
+    }
+
+    fun markCurrentTrack(track: Track) {
+        mapView.overlays.remove(currentTrackOverlay)
+        currentTrackOverlay = MapOverlayBuilder.createTrackOverlay(context, track, ServiceStatus.IS_NOT_RUNNING)
+        mapView.overlays.add(currentTrackOverlay)
     }
 }
 

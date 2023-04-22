@@ -22,7 +22,7 @@ object Settings {
     const val TEMPORARY_TRACK_FILE: String = "temp-track.json"
     const val TRACKS_FILE: String = "tracks.json"
 
-    private const val DEFAULT_MAP_ZOOM = 10.0
+    private const val DEFAULT_MAP_ZOOM = 15.0
     private const val MIN_MAP_ZOOM = 5.0
     private const val MAX_MAP_ZOOM = 20.0
     private const val DEFAULT_LOCATION_LATITUDE = 51.1078852    // Wroclaw latitude
@@ -33,20 +33,22 @@ object Settings {
     const val TIME_BETWEEN_SAVING_TRACK_TEMPORARY_FILES = 10000L
     const val LOCATION_AGE_THRESHOLD = 60000000000L
     const val LOCATION_ACCURACY_THRESHOLD = 30
-    const val ACCURACY_MULTIPLIER = 300
+    const val ACCURACY_MULTIPLIER = 1
     const val DISTANCE_THRESHOLD = 15.0F
+
+    const val TIME_BETWEEN_CURRENT_LOCATION_REQUESTS =  1000L
 
     fun Context.initPreferences() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     }
 
-    //fun registerPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-    //    sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
-    //}
+    fun registerPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+    }
 
-    //fun unregisterPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-    //    sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
-    //}
+    fun unregisterPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
+    }
 
     fun getDefaultMapZoom(): Double {
         return DEFAULT_MAP_ZOOM
