@@ -12,4 +12,9 @@
         android:icon="@drawable/icon_settings_24"
         android:title="@string/tab_settings" />
 
+    <item
+        android:id="@+id/ar_core_fragment"
+        android:icon="@drawable/icon_marker_24"
+        android:title="Ar Core Test"/>
+
 </menu>

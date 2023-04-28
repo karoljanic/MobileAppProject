@@ -20,4 +20,12 @@
         android:name="org.mobileapp.SettingsFragment"
         android:label="Settings"/>
 
+    <!-- AR CORE -->
+    <fragment
+        android:id="@+id/ar_core_fragment"
+        android:name="org.mobileapp.ArCoreFragment"
+        android:label="ARCore Test"
+        tools:layout="@layout/ar_core_fragment">
+    </fragment>
+
 </navigation>
