@@ -27,6 +27,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileApp">
         <activity
+            android:name=".GameFragment"
+            android:exported="false" />
+        <activity
             android:name=".ArCoreFragment"
             android:exported="false" />
 

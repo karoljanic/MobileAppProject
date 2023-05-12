@@ -28,4 +28,11 @@
         tools:layout="@layout/ar_core_fragment">
     </fragment>
 
+    <!-- GAME -->
+    <fragment
+        android:id="@+id/game_fragment"
+        android:name="org.mobileapp.GameFragment"
+        android:label="Game">
+    </fragment>
+
 </navigation>

@@ -62,32 +62,3 @@ class ArCoreFragment : Fragment() {
     }
 }
 
-//    private fun onUpdate() {
-//
-//        Log.i("test", "dziala")
-//
-//        val session: Session = arSceneView.session ?: return
-//
-//        val config = Config(session)
-//        config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-//        session.configure(config)
-//
-//        if (arSceneView.session == null) {
-//            return
-//        }
-//
-//        val cube = ShapeFactory.makeCube(
-//            Vector3(0f, 0f, -1f),
-//            Vector3(0.1f, 0.1f, 0.1f),
-//            MaterialFactory.makeOpaqueWithColor(context,
-//                com.google.ar.sceneform.rendering.Color(Color.RED)
-//            ).get()
-//        )
-//
-//        val node = Node().apply {
-//            renderable = cube
-//            localPosition = Vector3(0f, 0f, -1f)
-//        }
-//
-//        arSceneView.scene.addChild(node)
-//    }

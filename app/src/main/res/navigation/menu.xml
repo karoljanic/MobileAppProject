@@ -17,4 +17,9 @@
         android:icon="@drawable/icon_marker_24"
         android:title="Ar Core Test"/>
 
+    <item
+        android:id="@+id/game_fragment"
+        android:icon="@drawable/icon_game_24"
+        android:title="Game"/>
+
 </menu>
