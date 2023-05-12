@@ -21,10 +21,6 @@ class GameFragment : Fragment() {
     private lateinit var arFragment: ArFragment
     private var gameCreated: Boolean = false
 
-    private var startNode: AnchorNode? = null
-    private var endNode: AnchorNode? = null
-    private var andy: Node? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
