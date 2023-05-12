@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.animation.LinearInterpolator
 import com.google.ar.core.Anchor
 import com.google.ar.core.Pose
@@ -27,12 +28,10 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
     private var isRunning: Boolean = false
     private var isPaused: Boolean = false
 
-    private val handler = Handler(Looper.getMainLooper())
-
     private lateinit var gestureDetector: GestureDetector
 
     init {
-        spawnBalloon(
+        spawnObject(
             Balloon(
                 context, arFragment.transformationSystem, AnchorNode(origin), Vector3(
                     0.1f,
@@ -42,7 +41,7 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
             )
         )
 
-        spawnBalloon(
+        spawnObject(
             Balloon(
                 context, arFragment.transformationSystem, AnchorNode(origin), Vector3(
                     -0.1f,
@@ -52,7 +51,7 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
             )
         )
 
-        spawnBalloon(
+        spawnObject(
             Balloon(
                 context, arFragment.transformationSystem, AnchorNode(origin), Vector3(
                     -0.1f,
@@ -86,6 +85,19 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
                 for (balloon in objects) {
                     balloon.update(delta.toFloat() / 1000)
                 }
+
+                for (gameObject in objects) {
+                    if (gameObject is Arrow) {
+                        val overlapped = arFragment.arSceneView.scene.overlapTestAll(gameObject)
+                        for (overlappedObject in overlapped) {
+                            Log.i("HitArrow", "Hit")
+                            removeObject(overlappedObject as GameObject)
+                        }
+                        if ((gameObject as Arrow).timer >= 5f) {
+                            removeObject(gameObject)
+                        }
+                    }
+                }
             }
 
             // Calculate how long this frame took
@@ -96,6 +108,37 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
                 Thread.sleep((targetTime - frameTime).toLong())
             }
         }
+    }
+
+    override fun onLongPress(p0: MotionEvent) {
+        Log.i("Gesture", "Long Press")
+
+        val camera = arFragment.arSceneView.scene.camera
+        val ray = camera.screenPointToRay(p0.x, p0.y)
+        val point = ray.getPoint(1f)
+
+        spawnObject(
+            Balloon(
+                context, arFragment.transformationSystem, AnchorNode(origin), point, Vector3(0f, 0f, 0f), Color.BLUE
+            )
+        )
+    }
+
+    override fun onFling(eventDown: MotionEvent, eventUp: MotionEvent, velX: Float, velY: Float): Boolean {
+        Log.i("Gesture", "Fling")
+
+        val camera = arFragment.arSceneView.scene.camera
+        val ray = camera.screenPointToRay(eventUp.x, eventUp.y)
+        var point = ray.getPoint(1f)
+        point = Vector3(point.x * -velY / 1000f, point.y * -velY / 1000f, point.z * -velY / 1000f)
+
+        spawnObject(
+            Arrow(
+                context, arFragment.transformationSystem, AnchorNode(origin), point, Vector3(0f, 0f, 0f), Color.BLACK
+            )
+        )
+
+        return true
     }
 
     override fun start() {
@@ -119,8 +162,6 @@ class BalloonsGame(session: Session, arFragment: ArFragment, context: Context, o
         gameThread.start()
     }
 
-    private fun spawnBalloon(balloon: Balloon) {
-        handler.post { arFragment.arSceneView.scene.addChild(balloon) }
-        objects.add(balloon)
-    }
+
+
 }

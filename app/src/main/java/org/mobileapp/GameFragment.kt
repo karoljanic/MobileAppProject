@@ -1,6 +1,9 @@
 package org.mobileapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
+import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +23,9 @@ class GameFragment : Fragment() {
     private var game: Game? = null
     private lateinit var arFragment: ArFragment
     private var gameCreated: Boolean = false
+    private var detector: GestureDetector? = null
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -44,12 +49,22 @@ class GameFragment : Fragment() {
                     arFragment.setOnTapArPlaneListener { hitResult, _, _ ->
                         if (!gameCreated) {
                             val anchor: Anchor = hitResult.createAnchor()
-                            game = GameFactory.build(
+                            val newGame = GameFactory.build(
                                 GameType.BALLOONS, session, arFragment, context, anchor
                             )
 
                             gameCreated = true
-                            game!!.start()
+                            newGame.start()
+
+                            detector = GestureDetector(activity, newGame)
+
+                            arFragment.arSceneView.setOnTouchListener { _, event ->
+                                Log.i("Gesture", "Touch")
+                                detector!!.onTouchEvent(event)
+                                true
+                            }
+
+                            game = newGame
                         }
                     }
                 }

@@ -21,6 +21,7 @@ class Balloon (
     }
 
     override fun update(dt: Float) {
+        damp(dt)
         integrateVelocity(dt)
         integratePosition(dt)
     }
@@ -31,6 +32,12 @@ class Balloon (
         ).thenAccept { material ->
             renderable = ShapeFactory.makeSphere(0.1f, anchor.localPosition, material)
         }
+    }
+
+    private fun damp(dt : Float) {
+        velocity.x = (velocity.x) * (1 - dt / 10f)
+        velocity.y = (velocity.y) * (1 - dt / 10f)
+        velocity.z = (velocity.z) * (1 - dt / 10f)
     }
 
     private fun integrateVelocity(dt: Float) {
