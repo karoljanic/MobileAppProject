@@ -1,7 +1,6 @@
-package org.mobileapp
+package org.mobileapp.map
 
 import android.Manifest
-import android.app.Service
 import android.content.*
 import android.content.pm.PackageManager
 import android.location.Location
@@ -12,20 +11,15 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.mobileapp.settings.Settings
 import org.mobileapp.settings.SettingsKeys
+import org.mobileapp.tracking.config.Configuration
 import org.mobileapp.tracking.enums.ServiceBindStatus
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.mobileapp.tracking.service.LocalTrackerServiceBinder
 import org.mobileapp.tracking.service.TrackerService
 import org.mobileapp.tracking.track.Track
 import org.mobileapp.tracking.utils.LocationUtil
-import org.osmdroid.util.GeoPoint
 
 class MapFragment : Fragment() {
     private lateinit var layout: MapLayoutContainer
@@ -53,6 +47,8 @@ class MapFragment : Fragment() {
 
             handler.removeCallbacks(periodicLocationRequestRunnable)
             handler.postDelayed(periodicLocationRequestRunnable, 0)
+
+            startTracking()
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -67,8 +63,6 @@ class MapFragment : Fragment() {
         } else {
             activity?.unbindService(connection)
         }
-
-        //layout.toggleLocationErrorBar(gpsProviderActive, networkProviderActive)
     }
 
     private val periodicLocationRequestRunnable: Runnable = object : Runnable {
@@ -82,23 +76,16 @@ class MapFragment : Fragment() {
             layout.markCurrentTrack(track)
             layout.markCurrentPosition(currentBestLocation)
 
-            layout.setLocation(currentBestLocation)
-
-            //if (!layout.userInteraction)
-            //    layout.centerMap(currentBestLocation, true)
-
-            //layout.toggleLocationErrorBar(gpsProviderActive, networkProviderActive)
-
-            handler.postDelayed(this, Settings.TIME_BETWEEN_CURRENT_LOCATION_REQUESTS)
+            handler.postDelayed(this, Configuration.TIME_BETWEEN_CURRENT_LOCATION_REQUESTS)
         }
     }
 
-    private val startTrackingPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _: Boolean ->
+    private val startTrackingPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         startTrackerService()
         trackerService.startTracking()
     }
 
-    private val resumeTrackingPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _: Boolean ->
+    private val resumeTrackingPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         startTrackerService()
         trackerService.resumeTracking()
     }
@@ -116,7 +103,6 @@ class MapFragment : Fragment() {
         layout = MapLayoutContainer(activity as Context, container, inflater)
         layout.myLocation.setOnClickListener {
             //layout.setLocation(GeoPoint(currentBestLocation), animated = true)
-            startTracking()
         }
 
         return layout.rootView
@@ -133,17 +119,19 @@ class MapFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
+        try { trackerService.resumeTracking() } catch (_: Exception) { }
     }
 
     override fun onPause() {
         super.onPause()
 
-        //layout.saveState(currentBestLocation)
-
         if (trackingServiceBindStatus == ServiceBindStatus.IS_BOUNDED && trackingServiceStatus != ServiceStatus.IS_RUNNING) {
             trackerService.removeGpsLocationListener()
             trackerService.removeNetworkLocationListener()
         }
+
+        trackerService.stopTracking()
     }
 
     override fun onStop() {
@@ -203,13 +191,11 @@ class MapFragment : Fragment() {
         }
     }
 
-
     private val sharedPreferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             SettingsKeys.CURRENT_SERVICE_STATUS -> {
                 if (activity != null) {
                     trackingServiceStatus = Settings.getCurrentServiceStatus()
-                    //layout.updateMainButton(trackingState)
                 }
             }
         }

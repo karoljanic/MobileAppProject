@@ -1,4 +1,4 @@
-package org.mobileapp.localdata
+package org.mobileapp.tracking.utils
 
 import android.content.Context
 import android.database.Cursor
@@ -6,13 +6,13 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import org.mobileapp.settings.Settings
+import org.mobileapp.tracking.config.Configuration
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
 
-object LocalData {
+object LocalDataUtil {
     fun getTextFileStream(context: Context, uri: Uri): InputStream? {
         var stream: InputStream? = null
         try {
@@ -48,7 +48,7 @@ object LocalData {
     }
 
     fun getTempFileUri(context: Context): Uri {
-        return File(context.getExternalFilesDir(Settings.TEMPORARY_TRACK_FOLDER), Settings.TEMPORARY_TRACK_FILE).toUri()
+        return File(context.getExternalFilesDir(Configuration.TEMPORARY_TRACK_FOLDER), Configuration.TEMPORARY_TRACK_FILE).toUri()
     }
 
     fun deleteTempFile(context: Context) {

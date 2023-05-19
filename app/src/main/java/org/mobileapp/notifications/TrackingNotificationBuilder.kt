@@ -11,6 +11,7 @@ import androidx.core.graphics.drawable.toBitmap
 import org.mobileapp.MainActivity
 import org.mobileapp.R
 import org.mobileapp.settings.Settings
+import org.mobileapp.tracking.config.Configuration
 import org.mobileapp.tracking.enums.ServiceAction
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.mobileapp.tracking.service.TrackerService
@@ -61,7 +62,7 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
             createNotificationChannel()
         }
 
-        val builder = NotificationCompat.Builder(trackerService, Settings.TRACKER_SERVICE_NOTIFICATION_CHANNEL)
+        val builder = NotificationCompat.Builder(trackerService, Configuration.TRACKER_SERVICE_NOTIFICATION_CHANNEL)
         builder.setContentIntent(showActionPendingIntent)
         builder.setSmallIcon(R.drawable.icon_notifications_active_24)
         builder.setContentText(contentText)
@@ -87,16 +88,16 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
     private fun shouldCreateNotificationChannel() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun nowPlayingChannelExists() = notificationManager.getNotificationChannel(Settings.TRACKER_SERVICE_NOTIFICATION_CHANNEL) != null
+    private fun nowPlayingChannelExists() = notificationManager.getNotificationChannel(Configuration.TRACKER_SERVICE_NOTIFICATION_CHANNEL) != null
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel() {
         val notificationChannel = NotificationChannel(
-            Settings.TRACKER_SERVICE_NOTIFICATION_CHANNEL,
-            Settings.TRACKER_SERVICE_NOTIFICATION_CHANNEL_NAME,
+            Configuration.TRACKER_SERVICE_NOTIFICATION_CHANNEL,
+            Configuration.TRACKER_SERVICE_NOTIFICATION_CHANNEL_NAME,
             NotificationManager.IMPORTANCE_LOW
         )
-            .apply { description = Settings.TRACKER_SERVICE_NOTIFICATION_CHANNEL_DESCRIPTION }
+            .apply { description = Configuration.TRACKER_SERVICE_NOTIFICATION_CHANNEL_DESCRIPTION }
         notificationManager.createNotificationChannel(notificationChannel)
     }
 }

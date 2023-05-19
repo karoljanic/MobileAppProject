@@ -1,28 +1,17 @@
-package org.mobileapp
+package org.mobileapp.map
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.location.Location
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.widget.Toast
 import androidx.core.content.ContextCompat
+import org.mobileapp.R
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.mobileapp.tracking.track.Track
-import org.mobileapp.tracking.utils.LocationUtil
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.ItemizedIconOverlay
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.Polyline
-import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
-import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
-import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
-import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
-import java.text.DecimalFormat
-import java.text.SimpleDateFormat
 import java.util.*
 
 object MapOverlayBuilder {

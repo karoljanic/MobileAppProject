@@ -9,14 +9,11 @@ import android.os.Bundle
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import org.mobileapp.settings.Settings
-import org.mobileapp.tracking.track.Track
-import java.util.*
+import org.mobileapp.tracking.config.Configuration
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 object LocationUtil {
-    private const val SIGNIFICANT_TIME_DIFFERENCE: Long = 120000L
-
     fun getNumberOfSatellites(location: Location): Int {
         val extras: Bundle = location.extras ?: return 0
 
@@ -31,7 +28,6 @@ object LocationUtil {
             locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         else
             false
-
     }
 
     fun isNetworkEnabled(locationManager: LocationManager): Boolean {
@@ -39,7 +35,6 @@ object LocationUtil {
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         else
             false
-
     }
 
     fun getLastKnownLocation(context: Context): Location {
@@ -66,8 +61,8 @@ object LocationUtil {
         }
 
         val timeDelta: Long = location.time - currentBestLocation.time
-        val isSignificantlyNewer: Boolean = timeDelta > SIGNIFICANT_TIME_DIFFERENCE
-        val isSignificantlyOlder:Boolean = timeDelta < -SIGNIFICANT_TIME_DIFFERENCE
+        val isSignificantlyNewer: Boolean = timeDelta > Configuration.SIGNIFICANT_TIME_DIFFERENCE
+        val isSignificantlyOlder:Boolean = timeDelta < -Configuration.SIGNIFICANT_TIME_DIFFERENCE
 
         when {
             isSignificantlyNewer -> return true
@@ -90,11 +85,10 @@ object LocationUtil {
         }
     }
 
-
     fun isRecentEnough(location: Location): Boolean {
         val locationAge: Long = SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos
 
-        return locationAge < Settings.LOCATION_AGE_THRESHOLD
+        return locationAge < Configuration.LOCATION_AGE_THRESHOLD
     }
 
 
@@ -107,22 +101,12 @@ object LocationUtil {
         return isAccurate
     }
 
-
-    fun isFirstLocationPlausible(secondLocation: Location, track: Track): Boolean {
-
-        return true
-        //val speed: Double = calculateSpeed(firstLocation = track.wayPoints[0].toLocation(), secondLocation = secondLocation, firstTimestamp = track.recordingStart.time, secondTimestamp = GregorianCalendar.getInstance().time.time)
-        // plausible = speed under 250 km/h
-        //return speed < Keys.IMPLAUSIBLE_TRACK_START_SPEED
-    }
-
-
     fun isDifferentEnough(previousLocation: Location?, location: Location, accuracyMultiplier: Int): Boolean {
         if (previousLocation == null)
             return true
 
-        val accuracy: Float = if (location.accuracy != 0.0f) location.accuracy else Settings.DISTANCE_THRESHOLD
-        val previousAccuracy: Float = if (previousLocation.accuracy != 0.0f) previousLocation.accuracy else Settings.DISTANCE_THRESHOLD
+        val accuracy: Float = if (location.accuracy != 0.0f) location.accuracy else Configuration.DISTANCE_THRESHOLD
+        val previousAccuracy: Float = if (previousLocation.accuracy != 0.0f) previousLocation.accuracy else Configuration.DISTANCE_THRESHOLD
         val accuracyDelta: Double = sqrt((accuracy.pow(2) + previousAccuracy.pow(2)).toDouble())
         val distance: Float = previousLocation.distanceTo(location)
 

@@ -15,20 +15,22 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
+import android.util.Log
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.mobileapp.localdata.LocalData
-import org.mobileapp.localdata.TrackLocalData
 import org.mobileapp.notifications.TrackingNotificationBuilder
 import org.mobileapp.settings.Settings
+import org.mobileapp.tracking.config.Configuration
 import org.mobileapp.tracking.enums.ServiceAction
 import org.mobileapp.tracking.enums.ServiceBindStatus
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.mobileapp.tracking.track.Track
 import org.mobileapp.tracking.track.TrackNode
+import org.mobileapp.tracking.utils.LocalDataUtil
 import org.mobileapp.tracking.utils.LocationUtil
+import org.mobileapp.tracking.utils.TrackUtil
 import java.util.*
 
 class TrackerService : Service(), SensorEventListener {
@@ -80,9 +82,8 @@ class TrackerService : Service(), SensorEventListener {
         serviceStatus = ServiceStatus.IS_NOT_RUNNING
         serviceIsResumed = false
 
-        track = TrackLocalData.readTrack(this, LocalData.getTempFileUri(this))
+        track = TrackUtil.readTrack(this, LocalDataUtil.getTempFileUri(this))
     }
-
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
@@ -99,7 +100,6 @@ class TrackerService : Service(), SensorEventListener {
 
         return START_STICKY
     }
-
 
     override fun onBind(p0: Intent?): IBinder {
         addGpsLocationListener()
@@ -130,7 +130,6 @@ class TrackerService : Service(), SensorEventListener {
         return true
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
 
@@ -138,16 +137,13 @@ class TrackerService : Service(), SensorEventListener {
             stopTracking()
 
         stopForeground(STOP_FOREGROUND_DETACH)
-        notificationManager.cancel(Settings.TRACKER_SERVICE_NOTIFICATION_ID)
+        notificationManager.cancel(Configuration.TRACKER_SERVICE_NOTIFICATION_ID)
 
         removeGpsLocationListener()
         removeNetworkLocationListener()
     }
 
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-
-    }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
 
 
     override fun onSensorChanged(sensorEvent: SensorEvent?) {
@@ -166,12 +162,14 @@ class TrackerService : Service(), SensorEventListener {
 
     fun clearTrack() {
         track = Track()
-        LocalData.deleteTempFile(this)
+        LocalDataUtil.deleteTempFile(this)
         serviceStatus = ServiceStatus.IS_NOT_RUNNING
 
         Settings.setCurrentServiceStatus(serviceStatus)
         stopForeground(STOP_FOREGROUND_DETACH)
-        notificationManager.cancel(Settings.TRACKER_SERVICE_NOTIFICATION_ID)
+        notificationManager.cancel(Configuration.TRACKER_SERVICE_NOTIFICATION_ID)
+
+        Log.i("CLEAR", "TRACK")
     }
 
     fun getStatus(): ServiceStatus { return serviceStatus }
@@ -188,12 +186,11 @@ class TrackerService : Service(), SensorEventListener {
 
 
     fun resumeTracking() {
-        track = TrackLocalData.readTrack(this, LocalData.getTempFileUri(this))
+        track = TrackUtil.readTrack(this, LocalDataUtil.getTempFileUri(this))
         serviceIsResumed = true
 
         startTracking(false)
     }
-
 
     fun startTracking(newTrack: Boolean = true) {
         addGpsLocationListener()
@@ -215,12 +212,12 @@ class TrackerService : Service(), SensorEventListener {
         startStepCounter()
         handler.postDelayed(periodicTrackUpdate, 0)
 
-        startForeground(Settings.TRACKER_SERVICE_NOTIFICATION_ID, displayNotification())
+        startForeground(Configuration.TRACKER_SERVICE_NOTIFICATION_ID, displayNotification())
     }
 
 
     fun stopTracking() {
-        CoroutineScope(Dispatchers.IO).launch { TrackLocalData.saveTempTrackSuspended(this@TrackerService, track) }
+        CoroutineScope(Dispatchers.IO).launch { TrackUtil.saveTempTrackSuspended(this@TrackerService, track) }
 
         serviceStatus = ServiceStatus.IS_PAUSED
         Settings.setCurrentServiceStatus(serviceStatus)
@@ -266,15 +263,11 @@ class TrackerService : Service(), SensorEventListener {
                         )
                 }
             }
-
-            override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-
-            }
         }
     }
 
 
-    fun addGpsLocationListener() {
+    private fun addGpsLocationListener() {
         if (!gpsLocationListenerRegistered) {
             gpsProviderActive = LocationUtil.isGpsEnabled(locationManager)
             if (gpsProviderActive) {
@@ -297,7 +290,7 @@ class TrackerService : Service(), SensorEventListener {
     }
 
 
-    fun addNetworkLocationListener() {
+    private fun addNetworkLocationListener() {
         if (!networkLocationListenerRegistered) {
             networkProviderActive = LocationUtil.isNetworkEnabled(locationManager)
             if (networkProviderActive) {
@@ -350,7 +343,7 @@ class TrackerService : Service(), SensorEventListener {
             1000
         )
 
-        notificationManager.notify(Settings.TRACKER_SERVICE_NOTIFICATION_ID, notification)
+        notificationManager.notify(Configuration.TRACKER_SERVICE_NOTIFICATION_ID, notification)
 
         return notification
     }
@@ -359,19 +352,23 @@ class TrackerService : Service(), SensorEventListener {
         val previousLocation: Location?
         var numberOfNodes: Int = track.trackNodes.size
 
-        if (numberOfNodes == 0) {
-            previousLocation = null
-        } else if (numberOfNodes == 1 && !LocationUtil.isFirstLocationPlausible(lastLocation, track)) {
-            previousLocation = null
-            numberOfNodes = 0
-            track.trackNodes.removeAt(0)
-        } else {
-            previousLocation = track.trackNodes[numberOfNodes - 1].getLocation()
+        when (numberOfNodes) {
+            0 -> {
+                previousLocation = null
+            }
+            1 -> {
+                previousLocation = null
+                numberOfNodes = 0
+                track.trackNodes.removeAt(0)
+            }
+            else -> {
+                previousLocation = track.trackNodes[numberOfNodes - 1].getLocation()
+            }
         }
 
         val shouldBeAdded: Boolean = LocationUtil.isRecentEnough(lastLocation) &&
-                LocationUtil.isAccurateEnough(lastLocation, Settings.LOCATION_ACCURACY_THRESHOLD)  &&
-                LocationUtil.isDifferentEnough(previousLocation, lastLocation, Settings.ACCURACY_MULTIPLIER)
+                LocationUtil.isAccurateEnough(lastLocation, Configuration.LOCATION_ACCURACY_THRESHOLD)  &&
+                LocationUtil.isDifferentEnough(previousLocation, lastLocation, Configuration.ACCURACY_MULTIPLIER)
 
         if (shouldBeAdded) {
             track.trackNodes.add(TrackNode(lastLocation))
@@ -392,15 +389,15 @@ class TrackerService : Service(), SensorEventListener {
                 }
 
                 val now: Date = GregorianCalendar.getInstance().time
-                if (now.time - lastSave.time > Settings.TIME_BETWEEN_SAVING_TRACK_TEMPORARY_FILES) {
+                if (now.time - lastSave.time > Configuration.TIME_BETWEEN_SAVING_TRACK_TEMPORARY_FILES) {
                     lastSave = now
-                    CoroutineScope(Dispatchers.IO).launch { TrackLocalData.saveTempTrackSuspended(this@TrackerService, track) }
+                    CoroutineScope(Dispatchers.IO).launch { TrackUtil.saveTempTrackSuspended(this@TrackerService, track) }
                 }
             }
 
             displayNotification()
 
-            handler.postDelayed(this, Settings.TIME_BETWEEN_WRITING_OF_SUCCESSIVE_TRACK_NODES)
+            handler.postDelayed(this, Configuration.TIME_BETWEEN_WRITING_OF_SUCCESSIVE_TRACK_NODES)
         }
     }
 }

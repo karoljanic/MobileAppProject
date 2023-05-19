@@ -1,4 +1,4 @@
-package org.mobileapp.localdata
+package org.mobileapp.tracking.utils
 
 import android.content.Context
 import android.net.Uri
@@ -8,12 +8,12 @@ import com.google.gson.GsonBuilder
 import org.mobileapp.tracking.track.Track
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.resume
 
-object TrackLocalData {
+object TrackUtil {
     fun readTrack(context: Context, fileUri: Uri): Track {
-        val json: String = LocalData.readTextFile(context, fileUri)
+        val json: String = LocalDataUtil.readTextFile(context, fileUri)
         var track: Track = Track()
 
         if (json.isNotEmpty()) {
@@ -37,14 +37,14 @@ object TrackLocalData {
 
         if (jsonString.isNotBlank()) {
             // write track file
-            LocalData.writeTextFile(jsonString, track.trackUriString.toUri())
+            LocalDataUtil.writeTextFile(jsonString, track.trackUriString.toUri())
         }
 
         if (saveGpxToo) {
             val gpxString: String = createGpxString(track)
             if (gpxString.isNotBlank()) {
                 // write GPX file
-                LocalData.writeTextFile(gpxString, track.gpxUriString.toUri())
+                LocalDataUtil.writeTextFile(gpxString, track.gpxUriString.toUri())
             }
         }
     }
@@ -53,7 +53,7 @@ object TrackLocalData {
         val jsonString: String = trackToJsonString(track)
 
         if (jsonString.isNotBlank()) {
-            LocalData.writeTextFile(jsonString, LocalData.getTempFileUri(context))
+            LocalDataUtil.writeTextFile(jsonString, LocalDataUtil.getTempFileUri(context))
         }
     }
 

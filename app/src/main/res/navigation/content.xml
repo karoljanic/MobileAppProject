@@ -9,7 +9,7 @@
     <!-- MAP -->
     <fragment
         android:id="@+id/map_fragment"
-        android:name="org.mobileapp.MapFragment"
+        android:name="org.mobileapp.map.MapFragment"
         android:label="Map"
         tools:layout="@layout/map_fragment">
     </fragment>

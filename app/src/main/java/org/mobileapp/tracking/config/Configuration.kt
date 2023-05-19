@@ -1,0 +1,25 @@
+package org.mobileapp.tracking.config
+
+object Configuration {
+    const val TRACKER_SERVICE_NOTIFICATION_ID: Int = 1
+    const val TRACKER_SERVICE_NOTIFICATION_CHANNEL: String = "TRACKER_SERVICE_NOTIFICATION_CHANNEL"
+    const val TRACKER_SERVICE_NOTIFICATION_CHANNEL_NAME: String = "TRACKER_SERVICE_NOTIFICATION_CHANNEL_NAME"
+    const val TRACKER_SERVICE_NOTIFICATION_CHANNEL_DESCRIPTION: String = "TRACKER_SERVICE_NOTIFICATION_DESCRIPTION"
+
+    const val TEMPORARY_TRACK_FOLDER: String  = "temp-track"
+    const val TRACKS_FOLDER: String = "tracks"
+    const val GPX_FOLDER: String = "gpx"
+
+    const val TEMPORARY_TRACK_FILE: String = "temp-track.json"
+    const val TRACKS_FILE: String = "tracks.json"
+
+    const val TIME_BETWEEN_WRITING_OF_SUCCESSIVE_TRACK_NODES = 1000L
+    const val TIME_BETWEEN_SAVING_TRACK_TEMPORARY_FILES = 10000L
+    const val TIME_BETWEEN_CURRENT_LOCATION_REQUESTS =  1000L
+
+    const val LOCATION_AGE_THRESHOLD = 60000000000L
+    const val LOCATION_ACCURACY_THRESHOLD = 30
+    const val ACCURACY_MULTIPLIER = 1
+    const val DISTANCE_THRESHOLD = 15.0F
+    const val SIGNIFICANT_TIME_DIFFERENCE: Long = 120000L
+}

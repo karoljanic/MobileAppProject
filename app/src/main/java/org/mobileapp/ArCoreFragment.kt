@@ -1,20 +1,13 @@
 package org.mobileapp
 
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.google.ar.core.Anchor
-import com.google.ar.core.Config
-import com.google.ar.core.Plane
-import com.google.ar.core.Session
 import com.google.ar.sceneform.AnchorNode
-import com.google.ar.sceneform.ArSceneView
-import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.MaterialFactory
 import com.google.ar.sceneform.rendering.ShapeFactory

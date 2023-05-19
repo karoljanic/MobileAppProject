@@ -52,7 +52,7 @@
             android:name=".SettingsFragment"
             android:exported="false" />
         <activity
-            android:name=".MapFragment"
+            android:name=".map.MapFragment"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
