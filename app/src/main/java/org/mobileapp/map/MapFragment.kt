@@ -21,6 +21,7 @@ import org.mobileapp.tracking.service.TrackerService
 import org.mobileapp.tracking.track.Track
 import org.mobileapp.tracking.utils.LocationUtil
 
+
 class MapFragment : Fragment() {
     private lateinit var layout: MapLayoutContainer
 
@@ -101,8 +102,8 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         layout = MapLayoutContainer(activity as Context, container, inflater)
-        layout.myLocation.setOnClickListener {
-            //layout.setLocation(GeoPoint(currentBestLocation), animated = true)
+        layout.myCurrentLocation.setOnClickListener {
+            layout.setCurrentLocation(currentBestLocation, animated = true)
         }
 
         return layout.rootView

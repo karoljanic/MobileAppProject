@@ -2,6 +2,7 @@ package org.mobileapp.map
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.Polyline
 
@@ -27,10 +29,10 @@ import org.osmdroid.views.overlay.Polyline
 class MapLayoutContainer(
     private var context: Context,
     container: ViewGroup?,
-    inflater: LayoutInflater
+    inflater: LayoutInflatercd
 ) {
     var rootView: View = inflater.inflate(R.layout.map_fragment, container, false)
-    var myLocation: FloatingActionButton = rootView.findViewById(R.id.my_location)
+    var myCurrentLocation: FloatingActionButton = rootView.findViewById(R.id.my_current_location)
 
     private var mapView: MapView = rootView.findViewById(R.id.map)
     private var mapController: IMapController = mapView.controller
@@ -53,12 +55,15 @@ class MapLayoutContainer(
         currentPositionOverlay = MapOverlayBuilder.createLocationOverlay(
             context,
             Settings.getDefaultLocation(),
-            ServiceStatus.IS_NOT_RUNNING
+            {},
+            {},
+            Color.RED
         )
-        currentTrackOverlay = Polyline()
 
+        currentTrackOverlay = Polyline()
         mapView.overlays.clear()
         mapView.overlays.add(currentPositionOverlay)
+
 
         mapView.setOnTouchListener { _, event ->
             if(event?.action == MotionEvent.ACTION_UP) {
@@ -72,7 +77,7 @@ class MapLayoutContainer(
         }
     }
 
-    fun setLocation(location: Location, animated: Boolean = false) {
+    fun setCurrentLocation(location: Location, animated: Boolean = false) {
         when (animated) {
             true -> mapController.animateTo(GeoPoint(location))
             false -> mapController.setCenter(GeoPoint(location))
@@ -81,9 +86,15 @@ class MapLayoutContainer(
 
     fun markCurrentPosition(location: Location) {
         mapView.overlays.remove(currentPositionOverlay)
-        currentPositionOverlay =
-            MapOverlayBuilder.createLocationOverlay(context, location, ServiceStatus.IS_NOT_RUNNING)
+        currentPositionOverlay = MapOverlayBuilder.createLocationOverlay(
+            context,
+            location,
+            {},
+            {},
+            Color.BLUE
+        )
         mapView.overlays.add(currentPositionOverlay)
+        mapView.invalidate()
     }
 
     fun markCurrentTrack(track: Track) {

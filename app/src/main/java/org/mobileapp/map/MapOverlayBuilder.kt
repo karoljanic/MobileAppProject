@@ -4,7 +4,9 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.location.Location
+import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import org.mobileapp.R
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.mobileapp.tracking.track.Track
@@ -15,17 +17,31 @@ import org.osmdroid.views.overlay.Polyline
 import java.util.*
 
 object MapOverlayBuilder {
-    fun createLocationOverlay(context: Context, location: Location, serviceStatus: ServiceStatus): ItemizedIconOverlay<OverlayItem> {
+    fun createLocationOverlay(
+        context: Context,
+        location: Location,
+        onSingleTap: (OverlayItem) -> Unit,
+        onLongPress: (OverlayItem) -> Unit,
+        @ColorInt markerColor: Int
+    ): ItemizedIconOverlay<OverlayItem> {
         val overlayItems: ArrayList<OverlayItem> = ArrayList<OverlayItem>()
 
-        val newMarker: Drawable = ContextCompat.getDrawable(context, R.drawable.icon_marker_24)!!
+        val newMarker: Drawable =
+            ContextCompat.getDrawable(context, R.drawable.icon_location_marker_24)!!
+        DrawableCompat.setTint(newMarker, markerColor)
 
-        val overlayItem: OverlayItem =
-            createOverlayItem(context, location.latitude, location.longitude, location.accuracy, location.provider!!, location.time)
+        val overlayItem: OverlayItem = createOverlayItem(
+            context,
+            location.latitude,
+            location.longitude,
+            location.accuracy,
+            location.provider!!,
+            location.time
+        )
         overlayItem.setMarker(newMarker)
         overlayItems.add(overlayItem)
 
-        return createOverlay(context, overlayItems)
+        return createOverlay(context, overlayItems, onSingleTap, onLongPress)
     }
 
     fun createTrackOverlay(context: Context, track: Track, serviceStatus: ServiceStatus): Polyline {
@@ -44,7 +60,14 @@ object MapOverlayBuilder {
         return polyline
     }
 
-    private fun createOverlayItem(context: Context, latitude: Double, longitude: Double, accuracy: Float, provider: String, time: Long): OverlayItem {
+    private fun createOverlayItem(
+        context: Context,
+        latitude: Double,
+        longitude: Double,
+        accuracy: Float,
+        provider: String,
+        time: Long
+    ): OverlayItem {
         val title = "Title"
         val description = "Description"
         val position: GeoPoint = GeoPoint(latitude, longitude)
@@ -54,14 +77,21 @@ object MapOverlayBuilder {
         return item
     }
 
-    private fun createOverlay(context: Context, overlayItems: ArrayList<OverlayItem>): ItemizedIconOverlay<OverlayItem> {
-        return ItemizedIconOverlay<OverlayItem>(context, overlayItems,
+    private fun createOverlay(
+        context: Context, overlayItems: ArrayList<OverlayItem>,
+        onSingleTap: (OverlayItem) -> Unit, onLongPress: (OverlayItem) -> Unit
+    ): ItemizedIconOverlay<OverlayItem> {
+        return ItemizedIconOverlay(
+            context,
+            overlayItems,
             object : ItemizedIconOverlay.OnItemGestureListener<OverlayItem> {
                 override fun onItemSingleTapUp(index: Int, item: OverlayItem): Boolean {
+                    onSingleTap(item)
                     return true
                 }
 
                 override fun onItemLongPress(index: Int, item: OverlayItem): Boolean {
+                    onLongPress(item)
                     return false
                 }
             })
