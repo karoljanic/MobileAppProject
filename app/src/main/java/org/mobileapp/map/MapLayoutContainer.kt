@@ -29,7 +29,7 @@ import org.osmdroid.views.overlay.Polyline
 class MapLayoutContainer(
     private var context: Context,
     container: ViewGroup?,
-    inflater: LayoutInflatercd
+    inflater: LayoutInflater
 ) {
     var rootView: View = inflater.inflate(R.layout.map_fragment, container, false)
     var myCurrentLocation: FloatingActionButton = rootView.findViewById(R.id.my_current_location)
