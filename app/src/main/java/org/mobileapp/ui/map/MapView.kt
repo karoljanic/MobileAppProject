@@ -1,18 +1,22 @@
-package org.mobileapp.ui
+package org.mobileapp.ui.map
 
 import android.content.Context
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.settings.Settings
 import org.mobileapp.tracking.enums.ServiceStatus
+import org.mobileapp.viewmodel.MapViewModel
+import org.mobileapp.viewmodel.ProfileViewModel
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Polyline
 
 @Composable
-fun MapView(onProfileClicked: () -> Unit) {
+fun MapView(viewModel: MapViewModel = hiltViewModel(),
+            navigateToProfileScreen: () -> Unit) {
     AndroidView(
         factory = { context -> org.osmdroid.views.MapView(context) },
         update = { mapView ->
@@ -32,7 +36,7 @@ fun MapView(onProfileClicked: () -> Unit) {
             mapView.overlays.clear()
         })
 
-    Button(onClick = onProfileClicked) {
+    Button(onClick = navigateToProfileScreen) {
 
     }
 }

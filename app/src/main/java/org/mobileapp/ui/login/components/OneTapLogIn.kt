@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.auth.api.identity.BeginSignInResult
 import org.mobileapp.domain.model.Response
-import org.mobileapp.ui.globalcomponents.ProgressBar
+import org.mobileapp.ui.global.ProgressBar
 import org.mobileapp.viewmodel.LoginViewModel
 
 @Composable

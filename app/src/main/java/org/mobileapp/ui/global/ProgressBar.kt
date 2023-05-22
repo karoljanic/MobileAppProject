@@ -1,4 +1,4 @@
-package org.mobileapp.ui.globalcomponents
+package org.mobileapp.ui.global
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
