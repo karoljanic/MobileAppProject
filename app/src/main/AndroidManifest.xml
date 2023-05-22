@@ -49,7 +49,7 @@
             android:value="required" />
 
         <service
-            android:name=".tracking.service.TrackerService"
+            android:name=".service.TrackerService"
             android:exported="false"
             android:foregroundServiceType="location">
             <intent-filter>

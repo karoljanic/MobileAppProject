@@ -1,4 +1,4 @@
-package org.mobileapp.tracking.service
+package org.mobileapp.service
 
 import android.os.Binder
 

@@ -1,15 +1,13 @@
-package org.mobileapp.tracking.service
+package org.mobileapp.service
 
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
+import androidx.lifecycle.LifecycleService
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationListener
@@ -33,7 +31,7 @@ import org.mobileapp.tracking.utils.LocationUtil
 import org.mobileapp.tracking.utils.TrackUtil
 import java.util.*
 
-class TrackerService : Service(), SensorEventListener {
+class TrackerService : Service() {
     private lateinit var locationManager: LocationManager
     private lateinit var sensorManager: SensorManager
     private lateinit var notificationManager: NotificationManager
@@ -49,7 +47,6 @@ class TrackerService : Service(), SensorEventListener {
     private var networkLocationListenerRegistered: Boolean = false
 
     private var lastLocation: Location = Settings.getDefaultLocation()
-    private var stepCountOffset: Float = 0.0F
     private var lastSave: Date = Date(0L)
 
     private var serviceBindStatus: ServiceBindStatus = ServiceBindStatus.IS_NOT_BOUNDED
@@ -143,23 +140,6 @@ class TrackerService : Service(), SensorEventListener {
         removeNetworkLocationListener()
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { }
-
-
-    override fun onSensorChanged(sensorEvent: SensorEvent?) {
-        var steps: Float = 0.0F
-
-        if (sensorEvent != null) {
-            if (stepCountOffset == 0.0F) {
-                stepCountOffset = (sensorEvent.values[0] - 1) - track.stepCount
-            }
-
-            steps = sensorEvent.values[0] - stepCountOffset
-        }
-
-        track.stepCount = steps
-    }
-
     fun clearTrack() {
         track = Track()
         LocalDataUtil.deleteTempFile(this)
@@ -203,13 +183,11 @@ class TrackerService : Service(), SensorEventListener {
             track.name = now.toString()
             track.startDate = now
             track.endDate = now
-            stepCountOffset = 0.0F
         }
 
         serviceStatus = ServiceStatus.IS_RUNNING
         Settings.setCurrentServiceStatus(serviceStatus)
 
-        startStepCounter()
         handler.postDelayed(periodicTrackUpdate, 0)
 
         startForeground(Configuration.TRACKER_SERVICE_NOTIFICATION_ID, displayNotification())
@@ -222,7 +200,6 @@ class TrackerService : Service(), SensorEventListener {
         serviceStatus = ServiceStatus.IS_PAUSED
         Settings.setCurrentServiceStatus(serviceStatus)
 
-        sensorManager.unregisterListener(this)
         handler.removeCallbacks(periodicTrackUpdate)
 
         displayNotification()
@@ -326,16 +303,6 @@ class TrackerService : Service(), SensorEventListener {
             networkLocationListenerRegistered = false
         }
     }
-
-
-    private fun startStepCounter() {
-        val stepCounterAvailable =
-            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER), SensorManager.SENSOR_DELAY_UI)
-        if (!stepCounterAvailable) {
-            track.stepCount = -1f
-        }
-    }
-
 
     private fun displayNotification(): Notification {
         val notification: Notification = trackingNotificationBuilder.build(

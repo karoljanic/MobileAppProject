@@ -11,7 +11,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mobileapp.navigation.NavGraph
 import org.mobileapp.navigation.Screen
 import org.mobileapp.settings.Settings.initPreferences
-import org.mobileapp.ui.profile.ProfileView
 import org.mobileapp.viewmodel.LoginViewModel
 import org.osmdroid.config.Configuration
 

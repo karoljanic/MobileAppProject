@@ -89,6 +89,7 @@ dependencies {
 
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanistVersion"
 
+    implementation "androidx.lifecycle:lifecycle-service:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion"

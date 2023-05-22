@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.domain.model.Response
-import org.mobileapp.ui.globalcomponents.ProgressBar
+import org.mobileapp.ui.global.ProgressBar
 import org.mobileapp.viewmodel.ProfileViewModel
 
 @Composable

@@ -16,8 +16,8 @@ import org.mobileapp.settings.SettingsKeys
 import org.mobileapp.tracking.config.Configuration
 import org.mobileapp.tracking.enums.ServiceBindStatus
 import org.mobileapp.tracking.enums.ServiceStatus
-import org.mobileapp.tracking.service.LocalTrackerServiceBinder
-import org.mobileapp.tracking.service.TrackerService
+import org.mobileapp.service.LocalTrackerServiceBinder
+import org.mobileapp.service.TrackerService
 import org.mobileapp.tracking.track.Track
 import org.mobileapp.tracking.utils.LocationUtil
 

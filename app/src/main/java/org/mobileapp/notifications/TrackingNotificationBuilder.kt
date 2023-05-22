@@ -15,7 +15,7 @@ import org.mobileapp.settings.Settings
 import org.mobileapp.tracking.config.Configuration
 import org.mobileapp.tracking.enums.ServiceAction
 import org.mobileapp.tracking.enums.ServiceStatus
-import org.mobileapp.tracking.service.TrackerService
+import org.mobileapp.service.TrackerService
 
 class TrackingNotificationBuilder(private val trackerService: TrackerService) {
     private val notificationManager: NotificationManager = trackerService.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

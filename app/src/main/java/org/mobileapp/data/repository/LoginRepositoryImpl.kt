@@ -2,13 +2,11 @@ package org.mobileapp.data.repository
 
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.BeginSignInResult
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FieldValue.serverTimestamp
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import org.mobileapp.data.repository.Values.CREATED_AT
 import org.mobileapp.data.repository.Values.DISPLAY_NAME
@@ -33,7 +31,7 @@ class LoginRepositoryImpl @Inject constructor(
     private var signInRequest: BeginSignInRequest,
     @Named(SIGN_UP_REQUEST)
     private var signUpRequest: BeginSignInRequest,
-    private val db: FirebaseFirestore
+    private val db: FirebaseDatabase
 ) : LoginRepository {
     override val isUserAuthenticatedInFirebase = auth.currentUser != null
 
@@ -69,7 +67,10 @@ class LoginRepositoryImpl @Inject constructor(
     private suspend fun addUser() {
         auth.currentUser?.apply {
             val user = toUser()
-            db.collection(USERS).document(uid).set(user).await()
+            db.reference.child(USERS).child(uid).setValue(user)
+            db.getReference("test1").setValue("dziala")
+            //db.c(USERS).document(uid).set(user).await()
+            Log.i("DATABASE", "BYLEM TU")
         }
     }
 }
@@ -77,6 +78,6 @@ class LoginRepositoryImpl @Inject constructor(
 fun FirebaseUser.toUser() = mapOf(
     DISPLAY_NAME to displayName,
     EMAIL to email,
-    PHOTO_URL to photoUrl?.toString(),
-    CREATED_AT to serverTimestamp()
+    PHOTO_URL to photoUrl?.toString()
+   // CREATED_AT to serverTimestamp()
 )
