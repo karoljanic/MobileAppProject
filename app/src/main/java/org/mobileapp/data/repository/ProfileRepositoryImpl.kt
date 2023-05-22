@@ -37,10 +37,7 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun revokeAccess(): RevokeAccessResponse{
         return try {
             auth.currentUser?.apply {
-                db.reference.child("message").get().addOnSuccessListener { Log.i("REVOKE", it.toString())  }
-
-                //db.collection(USERS).document(uid).delete().await()
-                //db.reference.child(USERS).child(uid).removeValue()
+                db.reference.child(USERS).child(uid).removeValue()
                 signInClient.revokeAccess().await()
                 oneTapClient.signOut().await()
                 delete().await()
