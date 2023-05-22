@@ -1,74 +1,55 @@
 package org.mobileapp.ui.profile
 
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material.SnackbarResult.ActionPerformed
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import org.mobileapp.viewmodel.ProfileViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.launch
-import org.mobileapp.ui.StringValues
-import org.mobileapp.ui.profile.components.ProfileContent
-import org.mobileapp.ui.profile.components.ProfileTopBar
-import org.mobileapp.ui.profile.components.RevokeAccess
-import org.mobileapp.ui.profile.components.SignOut
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import org.mobileapp.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileView(
     viewModel: ProfileViewModel = hiltViewModel(),
-    navigateToAuthScreen: () -> Unit
+
 ) {
-    val scaffoldState = rememberScaffoldState()
-    val coroutineScope = rememberCoroutineScope()
-
-    Scaffold(
-        topBar = {
-            ProfileTopBar(
-                signOut = {
-                    viewModel.signOut()
-                },
-                revokeAccess = {
-                    viewModel.revokeAccess()
-                }
-            )
-        },
-        content = { padding ->
-            ProfileContent(
-                padding = padding,
-                photoUrl = viewModel.photoUrl,
-                displayName = viewModel.displayName
-            )
-        },
-        scaffoldState = scaffoldState
-    )
-
-    SignOut(
-        navigateToAuthScreen = { signedOut ->
-            if (signedOut) {
-                navigateToAuthScreen()
-            }
-        }
-    )
-
-    fun showSnackBar() = coroutineScope.launch {
-        val result = scaffoldState.snackbarHostState.showSnackbar(
-            message = StringValues.REVOKE_ACCESS_MESSAGE,
-            actionLabel = StringValues.LOG_OUT
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(
+            modifier = Modifier.height(48.dp)
         )
-        if (result == ActionPerformed) {
-            viewModel.signOut()
-        }
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(viewModel.photoUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.clip(CircleShape).width(96.dp).height(96.dp)
+        )
+        Text(
+            text = viewModel.displayName,
+            fontSize = 24.sp
+        )
     }
-
-    RevokeAccess(
-        navigateToAuthScreen = { accessRevoked ->
-            if (accessRevoked) {
-                navigateToAuthScreen()
-            }
-        },
-        showSnackBar = {
-            showSnackBar()
-        }
-    )
 }

@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.auth.api.identity.BeginSignInResult
@@ -21,7 +23,7 @@ import org.mobileapp.viewmodel.LoginViewModel
 @Composable
 fun LoginView(
     viewModel: LoginViewModel = hiltViewModel(),
-    navigateToProfileScreen: () -> Unit
+    navigateToMapScreen: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -34,6 +36,8 @@ fun LoginView(
                     viewModel.oneTapSignIn()
                 }
             )
+            /// DEBUG
+            Button(onClick = navigateToMapScreen, content = {Text("Skip")})
         }
     )
 
@@ -64,7 +68,7 @@ fun LoginView(
     LogInWithGoogle(
         navigateToHomeScreen = { signedIn ->
             if (signedIn) {
-                navigateToProfileScreen()
+                navigateToMapScreen()
             }
         }
     )

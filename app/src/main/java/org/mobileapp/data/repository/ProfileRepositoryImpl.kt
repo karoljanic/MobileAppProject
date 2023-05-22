@@ -1,5 +1,6 @@
 package org.mobileapp.data.repository
 
+import android.net.Uri
 import android.util.Log
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -21,8 +22,8 @@ class ProfileRepositoryImpl @Inject constructor(
     private var signInClient: GoogleSignInClient,
     private val db: FirebaseDatabase
 ) : ProfileRepository {
-    override val displayName = auth.currentUser?.displayName.toString()
-    override val photoUrl = auth.currentUser?.photoUrl.toString()
+    override val displayName = auth.currentUser?.displayName ?: "Placeholder name"
+    override val photoUrl = auth.currentUser?.photoUrl?.toString() ?: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
 
     override suspend fun signOut(): SignOutResponse {
         return try {

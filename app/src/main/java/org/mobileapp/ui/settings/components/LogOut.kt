@@ -6,23 +6,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.domain.model.Response
 import org.mobileapp.ui.global.ProgressBar
 import org.mobileapp.viewmodel.ProfileViewModel
+import org.mobileapp.viewmodel.SettingsViewModel
 
 @Composable
-fun RevokeAccess(
-    viewModel: ProfileViewModel = hiltViewModel(),
-    navigateToAuthScreen: (accessRevoked: Boolean) -> Unit,
-    showSnackBar: () -> Unit
+fun SignOut(
+    viewModel: SettingsViewModel = hiltViewModel(),
+    navigateToAuthScreen: (signedOut: Boolean) -> Unit
 ) {
-    when(val revokeAccessResponse = viewModel.revokeAccessResponse) {
+    when(val signOutResponse = viewModel.signOutResponse) {
         is Response.Loading -> ProgressBar()
-        is Response.Success -> revokeAccessResponse.data?.let { accessRevoked ->
-            LaunchedEffect(accessRevoked) {
-                navigateToAuthScreen(accessRevoked)
+        is Response.Success -> signOutResponse.data?.let { signedOut ->
+            LaunchedEffect(signedOut) {
+                navigateToAuthScreen(signedOut)
             }
         }
         is Response.Failure -> LaunchedEffect(Unit) {
-            print(revokeAccessResponse.e)
-            showSnackBar()
+            print(signOutResponse.e)
         }
     }
 }
