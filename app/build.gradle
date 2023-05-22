@@ -1,8 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: "dagger.hilt.android.plugin"
+
 
 android {
     compileSdkVersion 33
@@ -78,6 +81,14 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.0.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
+
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:$hilt_navigation_compose_version"
+
+
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
@@ -89,7 +100,6 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata:1.2.0'
     implementation 'com.google.android.gms:play-services-auth:20.1.0'
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
-    def nav_version = "2.5.3"
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
 

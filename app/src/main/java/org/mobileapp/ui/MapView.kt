@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
-import org.mobileapp.MapOverlayBuilder
 import org.mobileapp.settings.Settings
 import org.mobileapp.tracking.enums.ServiceStatus
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory

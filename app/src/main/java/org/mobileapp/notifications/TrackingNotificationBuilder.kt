@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import org.mobileapp.MainActivity
@@ -32,6 +33,7 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
         Intent(trackerService, TrackerService::class.java).setAction(ServiceAction.ACTION_RESUME.string), PendingIntent.FLAG_IMMUTABLE
     )
 
+    @OptIn(ExperimentalAnimationApi::class)
     private val showActionPendingIntent: PendingIntent? = TaskStackBuilder.create(trackerService).run {
         addNextIntentWithParentStack(Intent(trackerService, MainActivity::class.java))
         getPendingIntent(10, PendingIntent.FLAG_IMMUTABLE)
