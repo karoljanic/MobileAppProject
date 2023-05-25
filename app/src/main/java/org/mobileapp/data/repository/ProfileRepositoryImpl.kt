@@ -19,7 +19,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private var oneTapClient: SignInClient,
     private var signInClient: GoogleSignInClient,
-    private val db: FirebaseDatabase
+    private val db: FirebaseDatabase,
 ) : ProfileRepository {
     override val displayName = auth.currentUser?.displayName.toString()
     override val photoUrl = auth.currentUser?.photoUrl.toString()

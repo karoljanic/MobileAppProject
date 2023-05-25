@@ -90,6 +90,7 @@ dependencies {
 
 
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-permissions:0.23.1"
 
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
@@ -103,6 +104,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     testImplementation 'junit:junit:4.13.2'
 
@@ -114,4 +116,5 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.2.0"
 
     implementation "io.coil-kt:coil-compose:2.2.2"
+
 }

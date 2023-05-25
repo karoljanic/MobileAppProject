@@ -1,4 +1,4 @@
-package org.mobileapp.tracking.track
+package org.mobileapp.domain.model
 
 import android.os.Parcelable
 import com.google.gson.annotations.Expose

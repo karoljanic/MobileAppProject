@@ -1,4 +1,4 @@
-package org.mobileapp.tracking.utils
+package org.mobileapp.utils
 
 import android.Manifest
 import android.content.Context
@@ -8,12 +8,11 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
-import org.mobileapp.settings.Settings
-import org.mobileapp.tracking.config.Configuration
+import org.mobileapp.data.configuration.TrackerServiceConfig
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-object LocationUtil {
+object LocationUtils {
     fun getNumberOfSatellites(location: Location): Int {
         val extras: Bundle = location.extras ?: return 0
 
@@ -37,22 +36,6 @@ object LocationUtil {
             false
     }
 
-    fun getLastKnownLocation(context: Context): Location {
-        var lastSavedLocation: Location = Settings.getLastLocation()
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val lastKnownLocationGps: Location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) ?: lastSavedLocation
-            val lastKnownLocationNetwork: Location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: lastSavedLocation
-
-            lastSavedLocation = when (newLocationIsReliable(lastKnownLocationGps, lastKnownLocationNetwork)) {
-                true -> lastKnownLocationGps
-                false -> lastKnownLocationNetwork
-            }
-        }
-        return lastSavedLocation
-    }
-
     fun newLocationIsReliable(location: Location, currentBestLocation: Location?): Boolean {
         // https://developer.android.com/guide/topics/location/strategies.html#BestEstimate
 
@@ -61,8 +44,8 @@ object LocationUtil {
         }
 
         val timeDelta: Long = location.time - currentBestLocation.time
-        val isSignificantlyNewer: Boolean = timeDelta > Configuration.SIGNIFICANT_TIME_DIFFERENCE
-        val isSignificantlyOlder:Boolean = timeDelta < -Configuration.SIGNIFICANT_TIME_DIFFERENCE
+        val isSignificantlyNewer: Boolean = timeDelta > TrackerServiceConfig.SIGNIFICANT_TIME_DIFFERENCE
+        val isSignificantlyOlder:Boolean = timeDelta < -TrackerServiceConfig.SIGNIFICANT_TIME_DIFFERENCE
 
         when {
             isSignificantlyNewer -> return true
@@ -88,7 +71,7 @@ object LocationUtil {
     fun isRecentEnough(location: Location): Boolean {
         val locationAge: Long = SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos
 
-        return locationAge < Configuration.LOCATION_AGE_THRESHOLD
+        return locationAge < TrackerServiceConfig.LOCATION_AGE_THRESHOLD
     }
 
 
@@ -105,8 +88,8 @@ object LocationUtil {
         if (previousLocation == null)
             return true
 
-        val accuracy: Float = if (location.accuracy != 0.0f) location.accuracy else Configuration.DISTANCE_THRESHOLD
-        val previousAccuracy: Float = if (previousLocation.accuracy != 0.0f) previousLocation.accuracy else Configuration.DISTANCE_THRESHOLD
+        val accuracy: Float = if (location.accuracy != 0.0f) location.accuracy else TrackerServiceConfig.DISTANCE_THRESHOLD
+        val previousAccuracy: Float = if (previousLocation.accuracy != 0.0f) previousLocation.accuracy else TrackerServiceConfig.DISTANCE_THRESHOLD
         val accuracyDelta: Double = sqrt((accuracy.pow(2) + previousAccuracy.pow(2)).toDouble())
         val distance: Float = previousLocation.distanceTo(location)
 

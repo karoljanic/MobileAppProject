@@ -11,9 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.mobileapp.R
-import org.mobileapp.settings.Settings
-import org.mobileapp.tracking.enums.ServiceStatus
-import org.mobileapp.tracking.track.Track
+import org.mobileapp.domain.model.Track
 import org.osmdroid.api.IMapController
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
@@ -21,9 +19,10 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.Projection
 import org.osmdroid.views.overlay.ItemizedIconOverlay
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.Polyline
+
+/*
 
 @SuppressLint("ClickableViewAccessibility")
 class MapLayoutContainer(
@@ -104,4 +103,4 @@ class MapLayoutContainer(
         mapView.overlays.add(currentTrackOverlay)
     }
 }
-
+ */

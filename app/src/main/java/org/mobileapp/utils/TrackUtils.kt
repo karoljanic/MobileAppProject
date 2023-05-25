@@ -1,62 +1,17 @@
-package org.mobileapp.tracking.utils
+package org.mobileapp.utils
 
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import org.mobileapp.tracking.track.Track
+import org.mobileapp.domain.model.Track
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.coroutines.resume
 
-object TrackUtil {
-    fun readTrack(context: Context, fileUri: Uri): Track {
-        val json: String = LocalDataUtil.readTextFile(context, fileUri)
-        var track: Track = Track()
-
-        if (json.isNotEmpty()) {
-            try {
-                track = getCustomGson().fromJson(json, Track::class.java)
-            } catch (exception: Exception) {
-                exception.printStackTrace()
-            }
-        }
-        return track
-    }
-
-    suspend fun saveTempTrackSuspended(context: Context, track: Track) {
-        return suspendCoroutine { cont ->
-            cont.resume(saveTempTrack(context, track))
-        }
-    }
-
-    private fun saveTrack(track: Track, saveGpxToo: Boolean) {
-        val jsonString: String = trackToJsonString(track)
-
-        if (jsonString.isNotBlank()) {
-            // write track file
-            LocalDataUtil.writeTextFile(jsonString, track.trackUriString.toUri())
-        }
-
-        if (saveGpxToo) {
-            val gpxString: String = createGpxString(track)
-            if (gpxString.isNotBlank()) {
-                // write GPX file
-                LocalDataUtil.writeTextFile(gpxString, track.gpxUriString.toUri())
-            }
-        }
-    }
-
-    private fun saveTempTrack(context: Context, track: Track) {
-        val jsonString: String = trackToJsonString(track)
-
-        if (jsonString.isNotBlank()) {
-            LocalDataUtil.writeTextFile(jsonString, LocalDataUtil.getTempFileUri(context))
-        }
-    }
-
+object TrackUtils {
     private fun trackToJsonString(track: Track): String {
         val gson: Gson = getCustomGson()
         var json: String = String()

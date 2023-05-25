@@ -21,7 +21,7 @@ import org.mobileapp.viewmodel.LoginViewModel
 @Composable
 fun LoginView(
     viewModel: LoginViewModel = hiltViewModel(),
-    navigateToProfileScreen: () -> Unit
+    navigateToMapScreen: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -64,7 +64,7 @@ fun LoginView(
     LogInWithGoogle(
         navigateToHomeScreen = { signedIn ->
             if (signedIn) {
-                navigateToProfileScreen()
+                navigateToMapScreen()
             }
         }
     )

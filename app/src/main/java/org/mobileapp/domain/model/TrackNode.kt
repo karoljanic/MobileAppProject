@@ -1,10 +1,10 @@
-package org.mobileapp.tracking.track
+package org.mobileapp.domain.model
 
 import android.location.Location
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import kotlinx.parcelize.Parcelize
-import org.mobileapp.tracking.utils.LocationUtil
+import org.mobileapp.utils.LocationUtils
 import java.util.Optional
 
 
@@ -26,7 +26,7 @@ data class TrackNode(
         location.altitude,
         location.accuracy,
         location.time,
-        LocationUtil.getNumberOfSatellites(location)
+        LocationUtils.getNumberOfSatellites(location)
     )
 
     fun getLocation(): Location {

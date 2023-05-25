@@ -1,26 +1,6 @@
 package org.mobileapp.map
 
-import android.Manifest
-import android.content.*
-import android.content.pm.PackageManager
-import android.location.Location
-import android.os.*
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import org.mobileapp.settings.Settings
-import org.mobileapp.settings.SettingsKeys
-import org.mobileapp.tracking.config.Configuration
-import org.mobileapp.tracking.enums.ServiceBindStatus
-import org.mobileapp.tracking.enums.ServiceStatus
-import org.mobileapp.service.LocalTrackerServiceBinder
-import org.mobileapp.service.TrackerService
-import org.mobileapp.tracking.track.Track
-import org.mobileapp.tracking.utils.LocationUtil
-
+/*
 
 class MapFragment : Fragment() {
     private lateinit var layout: MapLayoutContainer
@@ -77,7 +57,7 @@ class MapFragment : Fragment() {
             layout.markCurrentTrack(track)
             layout.markCurrentPosition(currentBestLocation)
 
-            handler.postDelayed(this, Configuration.TIME_BETWEEN_CURRENT_LOCATION_REQUESTS)
+            handler.postDelayed(this, TrackerServiceConfig.TIME_BETWEEN_CURRENT_LOCATION_REQUESTS)
         }
     }
 
@@ -94,7 +74,7 @@ class MapFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        currentBestLocation = LocationUtil.getLastKnownLocation(activity as Context)
+        currentBestLocation = LocationUtils.getLastKnownLocation(activity as Context)
         trackingServiceStatus = Settings.getCurrentServiceStatus()
     }
 
@@ -202,3 +182,5 @@ class MapFragment : Fragment() {
         }
     }
 }
+
+ */
