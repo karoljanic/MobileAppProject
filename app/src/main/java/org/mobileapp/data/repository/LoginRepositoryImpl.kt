@@ -73,11 +73,10 @@ class LoginRepositoryImpl @Inject constructor(
             Log.i("DATABASE", "BYLEM TU")
         }
     }
-}
 
-fun FirebaseUser.toUser() = mapOf(
-    DISPLAY_NAME to displayName,
-    EMAIL to email,
-    PHOTO_URL to photoUrl?.toString()
-   // CREATED_AT to serverTimestamp()
-)
+    private fun FirebaseUser.toUser() = mapOf(
+        DISPLAY_NAME to displayName,
+        EMAIL to email,
+        PHOTO_URL to photoUrl?.toString()
+    )
+}

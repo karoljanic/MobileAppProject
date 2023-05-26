@@ -20,7 +20,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private var oneTapClient: SignInClient,
     private var signInClient: GoogleSignInClient,
-    private val db: FirebaseDatabase
+    private val db: FirebaseDatabase,
 ) : ProfileRepository {
     override val displayName = auth.currentUser?.displayName ?: "Placeholder name"
     override val photoUrl = auth.currentUser?.photoUrl?.toString() ?: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"

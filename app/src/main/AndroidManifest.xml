@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.mobileapp">
 
-    <uses-feature
-        android:name="android.hardware.location.gps"
-        android:required="true" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="true" />
     <uses-feature android:name="android.hardware.location.network" />
-    <uses-feature android:name="android.hardware.camera.ar" />
-    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="true"  />
+    <uses-feature android:name="android.hardware.camera" android:required="true"  />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -17,7 +17,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:name=".MobileApp"
@@ -41,26 +40,11 @@
             android:name="com.google.ar.core"
             android:value="optional" />
 
-        <service
-            android:name=".service.TrackerService"
+        <service android:name=".service.TrackerService"
+            android:foregroundServiceType="location"
             android:exported="false"
-            android:foregroundServiceType="location">
-            <intent-filter>
-                <action android:name="org.mobileapp.tracking.enums.ACTION_START" />
-                <action android:name="org.mobileapp.tracking.enums.ACTION_STOP" />
-                <action android:name="org.mobileapp.tracking.enums.DISMISS" />
-            </intent-filter>
-        </service>
+            tools:ignore="Instantiatable" />
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
     </application>
 
 </manifest>

@@ -8,8 +8,8 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import org.mobileapp.R
-import org.mobileapp.tracking.enums.ServiceStatus
-import org.mobileapp.tracking.track.Track
+import org.mobileapp.service.enums.ServiceStatus
+import org.mobileapp.domain.model.Track
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.ItemizedIconOverlay
 import org.osmdroid.views.overlay.OverlayItem
