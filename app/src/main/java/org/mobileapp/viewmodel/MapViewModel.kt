@@ -1,22 +1,19 @@
 package org.mobileapp.viewmodel
 
 
-import android.content.Context
 import android.location.Location
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
-import org.mobileapp.data.datastore.MapSettings
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import org.mobileapp.domain.model.Track
 import org.mobileapp.domain.repository.ProfileRepository
 import org.mobileapp.service.TrackerService
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 
-class MapViewModel : ViewModel() {
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val repo: ProfileRepository
@@ -48,7 +45,7 @@ class MapViewModel @Inject constructor(
 
 
     private val locationObserver: Observer<Location> = Observer { location ->
-        if(_centerLocation.value == null) {
+        if (_centerLocation.value == null) {
             _centerLocation.value = location
         }
 
