@@ -21,7 +21,7 @@ import org.mobileapp.ui.profilemenu.ProfileMenuView
 fun NavGraph(navController: NavHostController) {
 
     AnimatedNavHost(navController = navController,
-        //startDestination = Screen.PermissionsScreen.route,
+//        startDestination = Screen.PermissionsScreen.route,
         startDestination = Screen.MapScreen.route,
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }) {
