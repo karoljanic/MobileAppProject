@@ -12,6 +12,7 @@ import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
+import io.github.sceneview.math.toFloat3
 
 class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
     Game(
@@ -62,6 +63,39 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
     }
 
     override fun processSwipe(velocityX: Float, velocityY: Float) {
-        Log.i("Game", "Swiped")
+        var dart = GameObject(
+            followHitPosition = false,
+            instantAnchor = false,
+            placementMode = PlacementMode.BEST_AVAILABLE
+        ).apply {
+            applyPosePosition = false
+            applyPoseRotation = false
+
+            loadModelGlbAsync(
+                glbFileLocation = "models/Dart.glb",
+//              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
+                onError = { Log.i("Loading", "$it") },
+                onLoaded = { Log.i("Loading", "$it") },
+                scaleToUnits = null,
+                centerOrigin = Position(y = -1.0f)
+            )
+
+            Log.i("Game", "Dart Thrown")
+
+            this.anchor = startingAnchor
+            this.position = sceneView.cameraNode.position
+            this.lookAt(sceneView.cameraNode.screenPointToRay(sceneView.arSession!!.displayWidth.toFloat() / 2.0f,
+                sceneView.arSession!!.displayHeight.toFloat() / 2.0f
+            ).getPoint(1.0f).toFloat3())
+
+            this.velocity = sceneView.cameraNode.screenPointToRay(sceneView.arSession!!.displayWidth.toFloat() / 2.0f,
+                sceneView.arSession!!.displayHeight.toFloat() / 2.0f
+            ).getPoint(1.0f).toFloat3() * -velocityY * 100.0f
+
+            sceneView.addChild(this)
+            nodes.add(this)
+        }
+
+        objects.add(dart)
     }
 }

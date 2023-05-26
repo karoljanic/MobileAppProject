@@ -26,38 +26,19 @@ import org.mobileapp.viewmodel.GameViewModel
 
 @Composable
 fun GameView(state: GameViewModel = viewModel()) {
-
-    Box(modifier = Modifier.fillMaxSize()) {
-//        AndroidView(
-//            factory = { context ->
-//                // Create a view that fills the parent and is fully transparent
-//                val view = View(context)
-//                view.setBackgroundColor(Color.TRANSPARENT)
-//
-//                // Attach a gesture detector to the view
-//                val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-//                    override fun onFling(
-//                        e1: MotionEvent,
-//                        e2: MotionEvent,
-//                        velocityX: Float,
-//                        velocityY: Float
-//                    ): Boolean {
-//                        state.game.value?.processSwipe(velocityX, velocityY)
-//                        return true
-//                    }
-//                })
-//                view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
-//
-//                return@AndroidView view
-//            },
-//            modifier = Modifier.matchParentSize()
-//        )
+    Box(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+        detectDragGestures(onDragEnd = {
+            state.game.value?.processSwipe(state.dragOffsetX.value, state.dragOffsetY.value)
+            state.dragOffsetX.value = 0.0f
+            state.dragOffsetY.value = 0.0f
+        }) { change, dragAmount ->
+            change.consume()
+            state.dragOffsetX.value += dragAmount.x
+            state.dragOffsetY.value += dragAmount.y
+        }
+    }) {
         ARScene(
-            modifier = Modifier.fillMaxSize()
-                .pointerInput(Unit) {
-                    // These drag events will correctly be triggered
-                    detectDragGestures { _, _ ->  state.game.value?.processSwipe(0.0f, 0.0f)}
-                },
+            modifier = Modifier.fillMaxSize(),
             nodes = state.nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->

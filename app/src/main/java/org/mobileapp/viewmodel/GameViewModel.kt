@@ -13,4 +13,6 @@ class GameViewModel: ViewModel() {
     val game = mutableStateOf<Game?>(null)
     val isPlaced = mutableStateOf(false)
     val anchorVis = mutableStateOf<ArModelNode?>(null)
+    val dragOffsetX = mutableStateOf<Float>(0.0f);
+    val dragOffsetY = mutableStateOf<Float>(0.0f);
 }
