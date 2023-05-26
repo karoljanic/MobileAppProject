@@ -25,14 +25,13 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
 
     override fun onUpdate(arFrame: ArFrame) {
         val delta = arFrame.time.intervalSeconds
-
         currNode?.apply {
             rotation += Float3(0f, 10f * delta.toFloat(), 0f)
         }
     }
 
     override fun onHit(hitResult: HitResult) {
-        currNode = ArModelNode(
+        currNode = GameObject(
             followHitPosition = false,
             instantAnchor = false,
             placementMode = PlacementMode.BEST_AVAILABLE
@@ -41,11 +40,11 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
             applyPoseRotation = false
 
             loadModelGlbAsync(
-                glbFileLocation = "models/Parrot.glb",
+                glbFileLocation = "models/Bloon.glb",
 //              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
                 onError = { Log.i("Loading", "$it") },
                 onLoaded = { Log.i("Loading", "$it") },
-                scaleToUnits = 0.9f,
+                scaleToUnits = null,
                 centerOrigin = Position(y = -1.0f)
             )
 
@@ -54,6 +53,9 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
             this.anchor = startingAnchor
             this.position = hitResult.hitPose.position
             this.rotation = hitResult.hitPose.rotation
+
+            this.velocity = Float3(10f, 10f, 10f)
+
             sceneView.addChild(this)
             nodes.add(this)
         }
