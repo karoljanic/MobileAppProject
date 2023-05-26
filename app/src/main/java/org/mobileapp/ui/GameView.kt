@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
@@ -18,18 +19,15 @@ import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 import org.mobileapp.game.BalloonGame
 import org.mobileapp.game.Game
+import org.mobileapp.viewmodel.GameViewModel
 
 @Composable
-fun GameView() {
-    val nodes = remember { mutableStateListOf<ArNode>() }
-    val game = remember { mutableStateOf<Game?>(null)}
-    val isPlaced = remember { mutableStateOf(false) }
-    val anchorVis = remember { mutableStateOf<ArModelNode?>(null)}
+fun GameView(state: GameViewModel = viewModel()) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
-            nodes = nodes,
+            nodes = state.nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->
                 arSceneView.geospatialEnabled = true
@@ -37,7 +35,7 @@ fun GameView() {
             onSessionCreate = { session ->
                 session.instantPlacementEnabled = false
 
-                anchorVis.value = ArModelNode(followHitPosition = true, placementMode = PlacementMode.BEST_AVAILABLE).apply {
+                state.anchorVis.value = ArModelNode(followHitPosition = true, placementMode = PlacementMode.BEST_AVAILABLE).apply {
                     loadModelGlbAsync(
                         glbFileLocation = "models/Parrot.glb",
 //                      glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
@@ -48,32 +46,32 @@ fun GameView() {
                     )
 
                     this@ARScene.addChild(this)
-                    nodes.add(this)
+                    state.nodes.add(this)
                 }
 
-                game.value = BalloonGame(this@ARScene,nodes)
+                state.game.value = BalloonGame(this@ARScene, state.nodes)
             },
             onFrame = { arFrame ->
-                if (isPlaced.value) {
-                    game.value?.onUpdate(arFrame)
+                if (state.isPlaced.value) {
+                    state.game.value?.onUpdate(arFrame)
                 }
             },
             onTap = { hitResult ->
-                if (game.value?.isRunning == true) {
+                if (state.game.value?.isRunning == true) {
                     Log.i("Game", "tapped")
-                    game.value?.onHit(hitResult)
+                    state.game.value?.onHit(hitResult)
                 }
             }
         )
 
-        if (!isPlaced.value) {
+        if (!state.isPlaced.value) {
             Button(
                 onClick = {
-                    anchorVis.value?.apply {
+                    state.anchorVis.value?.apply {
                         this.anchor()?.apply {
-                            game.value?.anchor(this)
-                            isPlaced.value = true
-                            game.value?.start()
+                            state.game.value?.anchor(this)
+                            state.isPlaced.value = true
+                            state.game.value?.start()
                         }
                     }
                 },
