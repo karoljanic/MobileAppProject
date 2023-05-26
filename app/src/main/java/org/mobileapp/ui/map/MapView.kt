@@ -41,7 +41,8 @@ import org.osmdroid.views.overlay.Polyline
 
 @Composable
 fun MapView(viewModel: MapViewModel = hiltViewModel(),
-            navigateToProfileScreen: () -> Unit) {
+            navigateToProfileScreen: () -> Unit,
+            navigateToGame: () -> Unit) {
 
     Box {
         AndroidView(
@@ -82,6 +83,18 @@ fun MapView(viewModel: MapViewModel = hiltViewModel(),
                         .clip(CircleShape)
                         .size(65.dp),
                 )
+            }
+        )
+
+        Button(
+            shape = CircleShape,
+            onClick = navigateToGame,
+            modifier = Modifier
+                .padding(15.dp)
+                .align(Alignment.BottomEnd)
+                .size(80.dp),
+            content = {
+                Text(text = "Game test")
             }
         )
     }

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import org.mobileapp.ui.GameView
 import org.mobileapp.ui.map.MapView
 import org.mobileapp.ui.login.LoginView
 import org.mobileapp.ui.profile.ProfileView
@@ -43,7 +44,13 @@ fun NavGraph(
         ) {
             MapView(navigateToProfileScreen = {
                 navController.navigate(Screen.ProfileScreen.route)
-            })
+            }, navigateToGame = { navController.navigate(Screen.GameScreen.route) })
+        }
+
+        composable(
+            route = Screen.GameScreen.route
+        ) {
+            GameView()
         }
     }
 }
