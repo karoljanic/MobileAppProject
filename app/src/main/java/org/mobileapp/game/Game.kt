@@ -8,7 +8,7 @@ import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.ar.node.ArNode
 
 abstract class Game(val sceneView: ArSceneView, val nodes : MutableList<ArNode>) {
-
+    var objects = mutableListOf<GameObject>()
     init {
         Log.i("Game", "Created")
     }
@@ -30,7 +30,11 @@ abstract class Game(val sceneView: ArSceneView, val nodes : MutableList<ArNode>)
 
     open fun onAnchor() {}
 
-    open fun onUpdate(arFrame: ArFrame) {}
+    open fun onUpdate(arFrame: ArFrame) {
+        for(obj in objects) {
+            obj.onUpdate(arFrame.time.intervalSeconds);
+        }
+    }
 
     open fun onHit(hitResult: HitResult) {}
 }

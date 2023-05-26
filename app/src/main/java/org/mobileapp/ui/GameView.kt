@@ -6,19 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 import org.mobileapp.game.BalloonGame
-import org.mobileapp.game.Game
 import org.mobileapp.viewmodel.GameViewModel
 
 @Composable
@@ -37,11 +32,11 @@ fun GameView(state: GameViewModel = viewModel()) {
 
                 state.anchorVis.value = ArModelNode(followHitPosition = true, placementMode = PlacementMode.BEST_AVAILABLE).apply {
                     loadModelGlbAsync(
-                        glbFileLocation = "models/Parrot.glb",
+                        glbFileLocation = "models/Pin.glb",
 //                      glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
                         onError = { Log.i("Loading", "$it") },
                         onLoaded = { Log.i("Loading", "$it") },
-                        scaleToUnits = 0.9f,
+                        scaleToUnits = null,
                         centerOrigin = Position(y = -1.0f)
                     )
 
