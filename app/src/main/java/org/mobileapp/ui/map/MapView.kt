@@ -105,7 +105,7 @@ fun MapView(
 
         Button(
             shape = CircleShape,
-            onClick = navigateToGame,
+            onClick = navigateToGameScreen,
             modifier = Modifier
                 .padding(15.dp)
                 .align(Alignment.BottomEnd)

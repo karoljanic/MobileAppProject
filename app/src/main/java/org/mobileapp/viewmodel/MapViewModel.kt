@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val repo: ProfileRepository
-) {
+) : ViewModel() {
     val photoUrl get() = repo.photoUrl
 
     private val _currentLocation = TrackerService.currentLocation
