@@ -15,14 +15,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.mobileapp.data.configuration.TrackerServiceConfig
 import org.mobileapp.data.datastore.MapSettings
 import org.mobileapp.domain.model.Track
-import org.mobileapp.notifications.TrackingNotificationBuilder
+import org.mobileapp.utils.TrackingNotificationBuilder
 import org.mobileapp.service.enums.ServiceAction.*
 import org.mobileapp.service.enums.ServiceStatus
 import org.mobileapp.utils.LocationUtils
@@ -67,9 +66,6 @@ class TrackerService : LifecycleService() {
 
         gpsProviderActive = LocationUtils.isGpsEnabled(locationManager)
         networkProviderActive = LocationUtils.isNetworkEnabled(locationManager)
-
-        Log.i("XLOC", "GPS1 = $gpsProviderActive")
-        Log.i("XLOC", "GPS2 = $networkProviderActive")
 
         runBlocking { currentLocation.postValue(MapSettings(applicationContext).getLocation.first()!!) }
 
@@ -166,7 +162,6 @@ class TrackerService : LifecycleService() {
             override fun onLocationChanged(location: Location) {
                 if (LocationUtils.newLocationIsReliable(location, currentLocation.value)) {
                     currentLocation.postValue(location)
-                    Log.i("XLOC", "NEW VALUE ADDED")
                 }
             }
 

@@ -1,4 +1,4 @@
-package org.mobileapp.map
+package org.mobileapp.utils
 
 import android.content.Context
 import android.graphics.Color
@@ -43,6 +43,7 @@ object MapOverlayBuilder {
 
         return createOverlay(context, overlayItems, onSingleTap, onLongPress)
     }
+
 
     fun createTrackOverlay(context: Context, track: Track, serviceStatus: ServiceStatus): Polyline {
         val nodes: MutableList<GeoPoint> = mutableListOf()

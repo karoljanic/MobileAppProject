@@ -1,4 +1,4 @@
-package org.mobileapp.notifications
+package org.mobileapp.utils
 
 import android.app.*
 import android.content.Context
