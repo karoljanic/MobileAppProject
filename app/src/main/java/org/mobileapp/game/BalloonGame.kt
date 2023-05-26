@@ -21,26 +21,6 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
     var currNode: ArNode? = null
 
     override fun onAnchor() {
-        currNode = ArModelNode(
-            followHitPosition = false,
-            instantAnchor = false,
-            placementMode = PlacementMode.BEST_AVAILABLE
-        ).apply {
-            loadModelGlbAsync(
-                glbFileLocation = "models/Parrot.glb",
-//              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
-                onError = { Log.i("Loading", "$it") },
-                onLoaded = { Log.i("Loading", "$it") },
-                scaleToUnits = 0.9f,
-                centerOrigin = Position(y = -1.0f)
-            )
-
-            Log.i("Game", "Spawned")
-
-            this.anchor = startingAnchor
-            sceneView.addChild(this)
-            nodes.add(this)
-        }
     }
 
     override fun onUpdate(arFrame: ArFrame) {
@@ -57,6 +37,9 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
             instantAnchor = false,
             placementMode = PlacementMode.BEST_AVAILABLE
         ).apply {
+            applyPosePosition = false
+            applyPoseRotation = false
+
             loadModelGlbAsync(
                 glbFileLocation = "models/Parrot.glb",
 //              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
@@ -68,9 +51,9 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
 
             Log.i("Game", "Spawned")
 
-            this.position = hitResult.hitPose.position.copy()
-            this.rotation = hitResult.hitPose.rotation.copy()
             this.anchor = startingAnchor
+            this.position = hitResult.hitPose.position
+            this.rotation = hitResult.hitPose.rotation
             sceneView.addChild(this)
             nodes.add(this)
         }
