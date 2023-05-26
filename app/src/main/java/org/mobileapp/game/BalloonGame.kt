@@ -60,4 +60,8 @@ class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
             nodes.add(this)
         }
     }
+
+    override fun processSwipe(velocityX: Float, velocityY: Float) {
+        Log.i("Game", "Swiped")
+    }
 }

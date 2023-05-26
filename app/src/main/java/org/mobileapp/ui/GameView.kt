@@ -1,6 +1,12 @@
 package org.mobileapp.ui
 
+import android.graphics.Color
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
@@ -8,6 +14,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
@@ -20,8 +28,36 @@ import org.mobileapp.viewmodel.GameViewModel
 fun GameView(state: GameViewModel = viewModel()) {
 
     Box(modifier = Modifier.fillMaxSize()) {
+//        AndroidView(
+//            factory = { context ->
+//                // Create a view that fills the parent and is fully transparent
+//                val view = View(context)
+//                view.setBackgroundColor(Color.TRANSPARENT)
+//
+//                // Attach a gesture detector to the view
+//                val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+//                    override fun onFling(
+//                        e1: MotionEvent,
+//                        e2: MotionEvent,
+//                        velocityX: Float,
+//                        velocityY: Float
+//                    ): Boolean {
+//                        state.game.value?.processSwipe(velocityX, velocityY)
+//                        return true
+//                    }
+//                })
+//                view.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+//
+//                return@AndroidView view
+//            },
+//            modifier = Modifier.matchParentSize()
+//        )
         ARScene(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    // These drag events will correctly be triggered
+                    detectDragGestures { _, _ ->  state.game.value?.processSwipe(0.0f, 0.0f)}
+                },
             nodes = state.nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->

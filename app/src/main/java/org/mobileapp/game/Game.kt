@@ -37,4 +37,5 @@ abstract class Game(val sceneView: ArSceneView, val nodes : MutableList<ArNode>)
     }
 
     open fun onHit(hitResult: HitResult) {}
+    abstract fun processSwipe(velocityX: Float, velocityY: Float)
 }
