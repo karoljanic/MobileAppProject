@@ -1,24 +1,25 @@
 package org.mobileapp.ui.map
 
 
-import android.util.Log
+import android.content.Context
+import android.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import org.mobileapp.data.configuration.MapConfig
+import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.domain.model.TournamentState
 import org.mobileapp.ui.map.components.CenterMapButton
 import org.mobileapp.ui.map.components.GoToProfileButton
+import org.mobileapp.utils.MapOverlayBuilder
 import org.mobileapp.viewmodel.MapViewModel
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -36,6 +37,8 @@ fun MapView(
     navigateToProfileScreen: () -> Unit,
     navigateToGameScreen: () -> Unit
 ) {
+    val context = LocalContext.current
+
     val track by viewModel.track.observeAsState()
     val trackingTime by viewModel.trackingTime.observeAsState()
     val trackingDistance by viewModel.trackingDistance.observeAsState()
@@ -43,14 +46,18 @@ fun MapView(
     val centerLocation = viewModel.centerLocation
     val userLocation = viewModel.userLocation
     val tournaments = viewModel.tournaments
+    val stages = viewModel.stages
 
     Box {
-        Map(centerLocation.value,
+        Map(context,
+            centerLocation.value,
             userLocation.value,
             viewModel.mapZoom.value,
             updateZoom = { zoom -> viewModel.updateZoom(zoom) },
             updateMapCenter = { mapCenter -> viewModel.updateCenterLocation(mapCenter) },
-            tournaments.value)
+            tournaments.value,
+            stages,
+            showStages = { s -> viewModel.showStages(s) })
 
         GoToProfileButton(
             modifier = Modifier
@@ -72,12 +79,15 @@ fun MapView(
 
 @Composable
 fun Map(
+    currentContext: Context,
     centerLocation: GeoPoint?,
     userLocation: GeoPoint?,
     zoom: Double,
     updateZoom: (Double) -> Unit,
     updateMapCenter: (GeoPoint) -> Unit,
-    tournaments: TournamentState
+    tournaments: TournamentState,
+    stages: List<TournamentStage>,
+    showStages: (List<TournamentStage>) -> Unit
 ) {
     AndroidView(factory = { context ->
         val mapView = MapView(context)
@@ -115,30 +125,40 @@ fun Map(
 
         mapView
     }, update = { mapView ->
-        if (centerLocation != null)
-            mapView.controller.setCenter(centerLocation)
+        mapView.overlays.clear()
+
+        if (centerLocation != null) mapView.controller.setCenter(centerLocation)
 
         if (userLocation != null) {
-            val marker = Marker(mapView)
-            marker.position = userLocation
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-            mapView.overlays.clear()
-            mapView.overlays.add(marker)
-
-            mapView.invalidate()
+            mapView.overlays.add(
+                MapOverlayBuilder.createUserPositionMarker(
+                    currentContext, mapView, userLocation, Color.BLUE
+                )
+            )
         }
 
-        if(tournaments.data != null) {
+        if (tournaments.data != null) {
             tournaments.data.forEach { t ->
-                t!!.stages!!.forEach { s ->
-                    val marker = Marker(mapView)
-                    marker.position = GeoPoint(s.latitude!!.toDouble(), s.longitude!!.toDouble())
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                    mapView.overlays.add(marker)
-                }
+                if (t!!.stages!!.isNotEmpty()) mapView.overlays.add(MapOverlayBuilder.createTournamentPositionMarker(
+                    currentContext, mapView, t.stages!!, Color.YELLOW
+                ) {
+                    showStages(t.stages)
+                    true
+                })
             }
-
-            mapView.invalidate()
         }
+
+        if (stages.isNotEmpty()) {
+            stages.forEach {
+                mapView.overlays.add(
+                    MapOverlayBuilder.createStagePositionMarker(
+                        currentContext, mapView, GeoPoint(it.latitude!!, it.longitude!!), Color.MAGENTA
+                    )
+                )
+            }
+        }
+
+        //mapView.invalidate()
+
     })
 }

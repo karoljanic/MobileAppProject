@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import org.mobileapp.data.configuration.MapConfig
 import org.mobileapp.data.datastore.MapSettings
 import org.mobileapp.domain.model.Response
+import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.domain.model.TournamentState
 import org.mobileapp.domain.model.Track
 import org.mobileapp.domain.repository.ProfileRepository
@@ -47,6 +48,9 @@ class MapViewModel @Inject constructor(
 
     private val _tournaments = mutableStateOf(TournamentState())
     val tournaments: State<TournamentState> = _tournaments
+
+    private val _stages = mutableListOf<TournamentStage>()
+    val stages: MutableList<TournamentStage> = _stages
 
     private var mapCenterIsSet = false
 
@@ -88,6 +92,11 @@ class MapViewModel @Inject constructor(
 
     fun updateCenterLocation(location: GeoPoint) {
         _centerLocation.value = location
+    }
+
+    fun showStages(stages: List<TournamentStage>) {
+        _stages.clear()
+        _stages.addAll(stages)
     }
 
     private fun getTournaments() = viewModelScope.launch {

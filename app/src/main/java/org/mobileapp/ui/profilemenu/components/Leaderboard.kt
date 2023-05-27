@@ -9,26 +9,26 @@ import org.mobileapp.viewmodel.TournamentsViewModel
 
 @Composable
 fun Leaderboard(viewModel: TournamentsViewModel = hiltViewModel()) {
-    /*
+/*
     LaunchedEffect(Unit) {
         viewModel.createTournament(
             Tournament(
                 "id", "super name", "other owner", listOf(
                     TournamentStage(
-                        1, "51.108233", "17.074922", 2, "{}"
+                        1, 51.108233, 17.074922, 2, "{}"
                     ),
                     TournamentStage(
-                        2, "51.106765", "17.075266", 3, "{}"
+                        2, 51.106765, 17.075266, 3, "{}"
                     ),
                     TournamentStage(
-                        3, "51.108031", "17.080866", 1, "{}"
+                        3, 51.108031, 17.080866, 1, "{}"
                     ),
                     TournamentStage(
-                        4, "51.108497", "17.082570", 3, "{}"
+                        4, 51.108497, 17.082570, 3, "{}"
                     )
                 ), listOf("player11", "player52", "player38", "player19", "player8")
             )
         )
     }
-     */
+*/
 }
