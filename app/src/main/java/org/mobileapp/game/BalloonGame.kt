@@ -11,91 +11,66 @@ import io.github.sceneview.ar.arcore.rotation
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
+import io.github.sceneview.collision.overlapTest
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.toFloat3
+import kotlin.math.atan2
+import kotlin.random.Random
 
-class BalloonGame(sceneView: ArSceneView, nodes: MutableList<ArNode>) :
+class BalloonGame(
+    sceneView: ArSceneView,
+    nodes: MutableList<ArNode>,
+    val onScoreChange: (Int) -> Unit
+) :
     Game(
         sceneView, nodes,
     ) {
 
-    var currNode: ArNode? = null
+    val balloons = mutableListOf<GameObject>()
+    val darts = mutableListOf<GameObject>()
 
     override fun onAnchor() {
+        val newBloons = groupOfBloons(startingAnchor!!.pose.position, 1f, 10, 0.8f)
+        balloons.addAll(newBloons)
     }
 
     override fun onUpdate(arFrame: ArFrame) {
-        val delta = arFrame.time.intervalSeconds
-        currNode?.apply {
-            rotation += Float3(0f, 10f * delta.toFloat(), 0f)
+        for (dart in darts) {
+            sceneView.overlapTest(dart)?.let { hit ->
+                if (hit in balloons) {
+                    balloons.remove(hit)
+                    deleteGameObject(hit as GameObject)
+                    onScoreChange(100)
+                }
+            }
         }
     }
 
-    override fun onHit(hitResult: HitResult) {
-        currNode = GameObject(
-            followHitPosition = false,
-            instantAnchor = false,
-            placementMode = PlacementMode.BEST_AVAILABLE
-        ).apply {
-            applyPosePosition = false
-            applyPoseRotation = false
+//    override fun onHit(hitResult: HitResult) {
+//        val balloon = GameObject().apply {
+//            loadModel("models/Bloon.glb")
+//
+//            Log.i("Game", "Spawned")
+//
+//            this.anchor = startingAnchor
+//            this.position = hitResult.hitPose.position
+//            this.rotation = hitResult.hitPose.rotation
+//
+//            //this.velocity = Float3(0f, 1f, 0f)
+//
+//            addGameObject(this)
+//            balloons.add(this)
+//        }
+//    }
 
-            loadModelGlbAsync(
-                glbFileLocation = "models/Bloon.glb",
-//              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
-                onError = { Log.i("Loading", "$it") },
-                onLoaded = { Log.i("Loading", "$it") },
-                scaleToUnits = null,
-                centerOrigin = Position(y = -1.0f)
-            )
+    override fun onSwipe(velocityX: Float, velocityY: Float) {
+        val dart = throwDart(velocityY)
 
-            Log.i("Game", "Spawned")
-
-            this.anchor = startingAnchor
-            this.position = hitResult.hitPose.position
-            this.rotation = hitResult.hitPose.rotation
-
-            this.velocity = Float3(10f, 10f, 10f)
-
-            sceneView.addChild(this)
-            nodes.add(this)
-        }
-    }
-
-    override fun processSwipe(velocityX: Float, velocityY: Float) {
-        var dart = GameObject(
-            followHitPosition = false,
-            instantAnchor = false,
-            placementMode = PlacementMode.BEST_AVAILABLE
-        ).apply {
-            applyPosePosition = false
-            applyPoseRotation = false
-
-            loadModelGlbAsync(
-                glbFileLocation = "models/Dart.glb",
-//              glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
-                onError = { Log.i("Loading", "$it") },
-                onLoaded = { Log.i("Loading", "$it") },
-                scaleToUnits = null,
-                centerOrigin = Position(y = -1.0f)
-            )
-
-            Log.i("Game", "Dart Thrown")
-
-            this.anchor = startingAnchor
-            this.position = sceneView.cameraNode.position
-            this.lookAt(sceneView.cameraNode.screenPointToRay(sceneView.arSession!!.displayWidth.toFloat() / 2.0f,
-                sceneView.arSession!!.displayHeight.toFloat() / 2.0f
-            ).getPoint(1.0f).toFloat3())
-
-            this.velocity = sceneView.cameraNode.screenPointToRay(sceneView.arSession!!.displayWidth.toFloat() / 2.0f,
-                sceneView.arSession!!.displayHeight.toFloat() / 2.0f
-            ).getPoint(1.0f).toFloat3() * -velocityY * 100.0f
-
-            sceneView.addChild(this)
-            nodes.add(this)
+        while (darts.size >= 5) {
+            val removed = darts.removeFirst()
+            deleteGameObject(removed)
         }
 
-        objects.add(dart)
+        darts.add(dart)
     }
 }

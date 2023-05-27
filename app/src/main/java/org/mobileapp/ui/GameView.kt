@@ -5,8 +5,11 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
@@ -26,17 +29,17 @@ import org.mobileapp.viewmodel.GameViewModel
 
 @Composable
 fun GameView(state: GameViewModel = viewModel()) {
-    Box(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-        detectDragGestures(onDragEnd = {
-            state.game.value?.processSwipe(state.dragOffsetX.value, state.dragOffsetY.value)
-            state.dragOffsetX.value = 0.0f
-            state.dragOffsetY.value = 0.0f
-        }) { change, dragAmount ->
-            change.consume()
-            state.dragOffsetX.value += dragAmount.x
-            state.dragOffsetY.value += dragAmount.y
-        }
-    }) {
+    val draggableState = rememberDraggableState(onDelta = {})
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .draggable(
+                draggableState,
+                Orientation.Vertical,
+                reverseDirection = true,
+                onDragStopped = { state.game?.onSwipe(0f, it) })
+    ) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = state.nodes,
@@ -47,50 +50,30 @@ fun GameView(state: GameViewModel = viewModel()) {
             onSessionCreate = { session ->
                 session.instantPlacementEnabled = false
 
-                state.anchorVis.value = ArModelNode(followHitPosition = true, placementMode = PlacementMode.BEST_AVAILABLE).apply {
-                    loadModelGlbAsync(
-                        glbFileLocation = "models/Pin.glb",
-//                      glbFileLocation = "https://sceneview.github.io/assets/models/Spoons.glb",
-                        onError = { Log.i("Loading", "$it") },
-                        onLoaded = { Log.i("Loading", "$it") },
-                        scaleToUnits = null,
-                        centerOrigin = Position(y = -1.0f)
-                    )
+                state.newAnchorVis(this)
 
-                    this@ARScene.addChild(this)
-                    state.nodes.add(this)
-                }
-
-                state.game.value = BalloonGame(this@ARScene, state.nodes)
+                state.newGame(this)
             },
             onFrame = { arFrame ->
-                if (state.isPlaced.value) {
-                    state.game.value?.onUpdate(arFrame)
-                }
+                state.updateGame(arFrame)
             },
             onTap = { hitResult ->
-                if (state.game.value?.isRunning == true) {
-                    Log.i("Game", "tapped")
-                    state.game.value?.onHit(hitResult)
-                }
+                state.onHitGame(hitResult)
             }
         )
 
-        if (!state.isPlaced.value) {
+        if (!state.isPlaced) {
             Button(
                 onClick = {
-                    state.anchorVis.value?.apply {
-                        this.anchor()?.apply {
-                            state.game.value?.anchor(this)
-                            state.isPlaced.value = true
-                            state.game.value?.start()
-                        }
-                    }
+                    state.placeAnchorVis()
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)) {
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
                 Text(text = "Place game")
             }
         }
+        
+        Text(text = "Score ${state.score}", modifier =  Modifier.align(Alignment.TopCenter))
     }
 }
 
