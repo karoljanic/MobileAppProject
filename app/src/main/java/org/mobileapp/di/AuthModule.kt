@@ -4,38 +4,21 @@ import android.app.Application
 import android.content.Context
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mobileapp.R
-import org.mobileapp.data.repository.LoginRepositoryImpl
-import org.mobileapp.data.repository.ProfileRepositoryImpl
-import org.mobileapp.data.repository.Values.SIGN_IN_REQUEST
-import org.mobileapp.data.repository.Values.SIGN_UP_REQUEST
-import org.mobileapp.domain.repository.LoginRepository
-import org.mobileapp.domain.repository.ProfileRepository
+import org.mobileapp.data.repository.Values
 import javax.inject.Named
+
 
 @Module
 @InstallIn(ViewModelComponent::class)
-class AppModule {
-    @Provides
-    fun provideFirebaseAuth() = Firebase.auth
-
-    @Provides
-    fun provideFirebaseDatabase() = Firebase.database
-
+class AuthModule {
     @Provides
     fun provideOneTapClient(
         @ApplicationContext
@@ -43,7 +26,7 @@ class AppModule {
     ) = Identity.getSignInClient(context)
 
     @Provides
-    @Named(SIGN_IN_REQUEST)
+    @Named(Values.SIGN_IN_REQUEST)
     fun provideSignInRequest(
         app: Application
     ) = BeginSignInRequest.builder()
@@ -57,7 +40,7 @@ class AppModule {
         .build()
 
     @Provides
-    @Named(SIGN_UP_REQUEST)
+    @Named(Values.SIGN_UP_REQUEST)
     fun provideSignUpRequest(
         app: Application
     ) = BeginSignInRequest.builder()
@@ -82,34 +65,4 @@ class AppModule {
         app: Application,
         options: GoogleSignInOptions
     ) = GoogleSignIn.getClient(app, options)
-
-    @Provides
-    fun provideAuthRepository(
-        auth: FirebaseAuth,
-        oneTapClient: SignInClient,
-        @Named(SIGN_IN_REQUEST)
-        signInRequest: BeginSignInRequest,
-        @Named(SIGN_UP_REQUEST)
-        signUpRequest: BeginSignInRequest,
-        db: FirebaseDatabase
-    ): LoginRepository = LoginRepositoryImpl(
-        auth = auth,
-        oneTapClient = oneTapClient,
-        signInRequest = signInRequest,
-        signUpRequest = signUpRequest,
-        db = db
-    )
-
-    @Provides
-    fun provideProfileRepository(
-        auth: FirebaseAuth,
-        oneTapClient: SignInClient,
-        signInClient: GoogleSignInClient,
-        db: FirebaseDatabase
-    ): ProfileRepository = ProfileRepositoryImpl(
-        auth = auth,
-        oneTapClient = oneTapClient,
-        signInClient = signInClient,
-        db = db
-    )
 }

@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
-import org.mobileapp.data.repository.Values.CREATED_AT
 import org.mobileapp.data.repository.Values.DISPLAY_NAME
 import org.mobileapp.data.repository.Values.EMAIL
 import org.mobileapp.data.repository.Values.PHOTO_URL
@@ -68,8 +67,6 @@ class LoginRepositoryImpl @Inject constructor(
         auth.currentUser?.apply {
             val user = toUser()
             db.reference.child(USERS).child(uid).setValue(user)
-            db.getReference("test1").setValue("dziala")
-            //db.c(USERS).document(uid).set(user).await()
             Log.i("DATABASE", "BYLEM TU")
         }
     }

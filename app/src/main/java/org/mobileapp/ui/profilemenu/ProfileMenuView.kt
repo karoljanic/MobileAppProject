@@ -21,16 +21,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
-import org.mobileapp.ui.profile.ProfileView
-import org.mobileapp.ui.settings.SettingsView
+import org.mobileapp.ui.profilemenu.components.Leaderboard
+import org.mobileapp.ui.profilemenu.components.MyTournaments
+import org.mobileapp.ui.profilemenu.components.ProfileView
 
 @ExperimentalFoundationApi
 @Composable
 fun ProfileMenuView(
     navigateToAuthScreen: () -> Unit,
 ) {
-    val tabTitles = listOf("Settings", "Profile", "Leaderboard")
-    val pagerState = rememberPagerState(initialPage = 1) {3}
+    val tabTitles = listOf("My Tournaments", "Profile", "Leaderboard")
+    val pagerState = rememberPagerState(initialPage = 1) { 3 }
     val coroutineScope = rememberCoroutineScope()
 
     Column {
@@ -45,27 +46,10 @@ fun ProfileMenuView(
         }
         HorizontalPager(state = pagerState) { page ->
             when (page) {
-                0 -> SettingsView(navigateToAuthScreen = navigateToAuthScreen)
-                1 -> ProfileView()
+                0 -> MyTournaments()
+                1 -> ProfileView(navigateToAuthScreen = navigateToAuthScreen)
+                2 -> Leaderboard()
             }
         }
     }
-}
-
-@Composable
-fun SwipeableTab(onSwiped: (Boolean) -> Unit, content: @Composable BoxScope.() -> Unit) {
-    var isSwipeToTheLeft by remember { mutableStateOf(false) }
-    val dragState = rememberDraggableState(onDelta = { delta ->
-        isSwipeToTheLeft = delta > 0
-    })
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .draggable(
-            state = dragState,
-            orientation = Orientation.Horizontal,
-            onDragStopped = {
-                onSwiped(isSwipeToTheLeft)
-            }),
-        content = { content(this) })
 }

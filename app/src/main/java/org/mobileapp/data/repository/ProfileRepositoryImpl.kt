@@ -1,7 +1,5 @@
 package org.mobileapp.data.repository
 
-import android.net.Uri
-import android.util.Log
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth

@@ -1,4 +1,4 @@
-package org.mobileapp.ui.profile.components
+package org.mobileapp.ui.profilemenu.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,11 +6,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.domain.model.Response
 import org.mobileapp.ui.global.ProgressBar
 import org.mobileapp.viewmodel.ProfileViewModel
-import org.mobileapp.viewmodel.SettingsViewModel
 
 @Composable
 fun SignOut(
-    viewModel: SettingsViewModel = hiltViewModel(),
+    viewModel: ProfileViewModel = hiltViewModel(),
     navigateToAuthScreen: (signedOut: Boolean) -> Unit
 ) {
     when(val signOutResponse = viewModel.signOutResponse) {
