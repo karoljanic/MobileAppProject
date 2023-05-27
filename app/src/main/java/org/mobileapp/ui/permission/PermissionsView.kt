@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.camera2.CameraManager
 import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
@@ -19,6 +20,7 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import org.mobileapp.ui.permission.components.CameraPermissionTextProvider
+import org.mobileapp.ui.permission.components.LocalizationNotAvailableDialog
 import org.mobileapp.ui.permission.components.LocationPermissionTextProvider
 import org.mobileapp.ui.permission.components.PermissionDialog
 import org.mobileapp.viewmodel.PermissionViewModel
@@ -32,6 +34,7 @@ fun PermissionsView(
     val dialogQueue = viewModel.visiblePermissionDialogQueue
     val multiplePermissionsState =
         rememberMultiplePermissionsState(permissions = viewModel.necessaryPermissions.keys.toList())
+
     val isLocationEnabled = remember { mutableStateOf(false) }
 
     when {
@@ -39,7 +42,7 @@ fun PermissionsView(
             if(isLocationEnabled.value)
                 navigateToLoginScreen.invoke()
             else
-                Text(text = "Enable localization!")
+                LocalizationNotAvailableDialog()
         }
     }
 
@@ -68,7 +71,7 @@ fun PermissionsView(
         }, isPermanentlyDeclined = !shouldShowRequestPermissionRationale(
             LocalContext.current as Activity, permission
         ), onDismiss = viewModel::dismissDialog, onOkClick = {
-            viewModel.dismissDialog()
+            //viewModel.dismissDialog()
             permissionResultLauncher.launch(
                 arrayOf(permission)
             )
@@ -83,7 +86,7 @@ fun PermissionsView(
         permissionResultLauncher.launch(viewModel.necessaryPermissions.keys.toTypedArray())
     }
 
-    LaunchedEffect(Unit) {
+    DisposableEffect(Unit) {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         isLocationEnabled.value = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
@@ -97,6 +100,10 @@ fun PermissionsView(
 
         val intentFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
         context.registerReceiver(locationProviderChangedReceiver, intentFilter)
+
+        onDispose {
+            context.unregisterReceiver(locationProviderChangedReceiver)
+        }
     }
 
 }

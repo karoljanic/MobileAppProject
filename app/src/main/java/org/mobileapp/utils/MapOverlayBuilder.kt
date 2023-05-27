@@ -8,15 +8,81 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import org.mobileapp.R
+import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.service.enums.ServiceStatus
 import org.mobileapp.domain.model.Track
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.ItemizedIconOverlay
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.OverlayItem
 import org.osmdroid.views.overlay.Polyline
 import java.util.*
 
 object MapOverlayBuilder {
+
+    fun createUserPositionMarker(
+        context: Context, mapView: MapView, location: GeoPoint, @ColorInt markerColor: Int
+    ): Marker {
+        val markerIcon: Drawable =
+            ContextCompat.getDrawable(context, R.drawable.icon_location_marker_24)!!
+        DrawableCompat.setTint(markerIcon, markerColor)
+
+        val marker = Marker(mapView)
+        marker.position = location
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        marker.icon = markerIcon
+        marker.setOnMarkerClickListener { _, _ -> true }
+
+        return marker
+    }
+
+    fun createTournamentPositionMarker(
+        context: Context,
+        mapView: MapView,
+        stages: List<TournamentStage>,
+        @ColorInt markerColor: Int,
+        onClick: () -> Boolean
+    ): Marker {
+        val markerIcon: Drawable =
+            ContextCompat.getDrawable(context, R.drawable.icon_event_24)!!
+        DrawableCompat.setTint(markerIcon, markerColor)
+
+        var meanLat = 0.0
+        var meanLog = 0.0
+        stages.forEach {
+            meanLat += it.latitude!!
+            meanLog += it.longitude!!
+        }
+
+        meanLat /= stages.size
+        meanLog /= stages.size
+
+        val marker = Marker(mapView)
+        marker.position = GeoPoint(meanLat, meanLog)
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        marker.icon = markerIcon
+        marker.setOnMarkerClickListener { _, _ -> onClick.invoke() }
+
+        return marker
+    }
+
+    fun createStagePositionMarker(
+        context: Context, mapView: MapView, location: GeoPoint, @ColorInt markerColor: Int
+    ): Marker {
+        val markerIcon: Drawable =
+            ContextCompat.getDrawable(context, R.drawable.icon_mystery_location_24)!!
+        DrawableCompat.setTint(markerIcon, markerColor)
+
+        val marker = Marker(mapView)
+        marker.position = location
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        marker.icon = markerIcon
+        marker.setOnMarkerClickListener { _, _ -> true }
+
+        return marker
+    }
+
     fun createLocationOverlay(
         context: Context,
         location: Location,
@@ -79,8 +145,10 @@ object MapOverlayBuilder {
     }
 
     private fun createOverlay(
-        context: Context, overlayItems: ArrayList<OverlayItem>,
-        onSingleTap: (OverlayItem) -> Unit, onLongPress: (OverlayItem) -> Unit
+        context: Context,
+        overlayItems: ArrayList<OverlayItem>,
+        onSingleTap: (OverlayItem) -> Unit,
+        onLongPress: (OverlayItem) -> Unit
     ): ItemizedIconOverlay<OverlayItem> {
         return ItemizedIconOverlay(
             context,

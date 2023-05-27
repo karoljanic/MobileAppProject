@@ -1,39 +1,34 @@
 package org.mobileapp.ui.map
 
-import android.location.Location
-import android.util.Log
+
+import android.content.Context
+import android.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.mobileapp.data.configuration.MapConfig
-import org.mobileapp.data.datastore.MapSettings
+import org.mobileapp.domain.model.TournamentStage
+import org.mobileapp.domain.model.TournamentState
+import org.mobileapp.ui.map.components.CenterMapButton
+import org.mobileapp.ui.map.components.GoToProfileButton
+import org.mobileapp.utils.MapOverlayBuilder
 import org.mobileapp.viewmodel.MapViewModel
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import java.util.concurrent.atomic.AtomicBoolean
 
 
 @Composable
@@ -50,52 +45,50 @@ fun MapView(
 
     val centerLocation = viewModel.centerLocation
     val userLocation = viewModel.userLocation
-    val centerIsSet = viewModel.centerIsSet
+    val tournaments = viewModel.tournaments
+    val stages = viewModel.stages
 
     Box {
-        Map(centerLocation.value, userLocation.value, centerIsSet.value) {
-            viewModel.disableSettingCenter()
-        }
-        Button(
-            shape = CircleShape,
-            onClick = navigateToProfileScreen,
-            modifier = Modifier
-                .padding(15.dp)
-                .align(Alignment.BottomStart)
-                .size(80.dp),
-            content = {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(viewModel.photoUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(65.dp),
-                )
-            }
-        )
+        Map(context,
+            centerLocation.value,
+            userLocation.value,
+            viewModel.mapZoom.value,
+            updateZoom = { zoom -> viewModel.updateZoom(zoom) },
+            updateMapCenter = { mapCenter -> viewModel.updateCenterLocation(mapCenter) },
+            tournaments.value,
+            stages,
+            showStages = { s -> viewModel.showStages(s) })
 
-        Button(
-            shape = CircleShape,
-            onClick = navigateToGameScreen,
+        GoToProfileButton(
             modifier = Modifier
                 .padding(15.dp)
-                .align(Alignment.BottomEnd)
-                .size(80.dp),
-            content = {
-                Text(text = "Game test")
-            }
-        )
+                .align(Alignment.BottomStart),
+            photoUrl = viewModel.photoUrl
+        ) {
+            navigateToProfileScreen.invoke()
+        }
+
+        CenterMapButton(
+            modifier = Modifier
+                .padding(15.dp)
+                .align(Alignment.TopEnd)
+        ) {}
     }
 }
 
-@Composable
-fun Map(centerLocation: Location?, userLocation: Location?, centerIsSet: Boolean, onCenterSet: () -> Unit) {
-    //val mapViewState = rememberMapViewWithLifecycle()
 
+@Composable
+fun Map(
+    currentContext: Context,
+    centerLocation: GeoPoint?,
+    userLocation: GeoPoint?,
+    zoom: Double,
+    updateZoom: (Double) -> Unit,
+    updateMapCenter: (GeoPoint) -> Unit,
+    tournaments: TournamentState,
+    stages: List<TournamentStage>,
+    showStages: (List<TournamentStage>) -> Unit
+) {
     AndroidView(factory = { context ->
         val mapView = MapView(context)
         mapView.isTilesScaledToDpi = true
@@ -115,53 +108,57 @@ fun Map(centerLocation: Location?, userLocation: Location?, centerIsSet: Boolean
             )
         )
 
-        mapView.controller.setZoom(MapConfig.DEFAULT_MAP_ZOOM)
+        mapView.controller.setZoom(zoom)
+
+        mapView.addMapListener(object : MapListener {
+            override fun onScroll(event: ScrollEvent): Boolean {
+                updateMapCenter(mapView.projection.currentCenter)
+                return false
+            }
+
+            override fun onZoom(event: ZoomEvent): Boolean {
+                updateZoom(event.zoomLevel)
+                return false
+            }
+
+        })
 
         mapView
-    },
-    update = { mapView ->
-        if(!centerIsSet) {
-            if(centerLocation != null) {
-                mapView.controller.setCenter(GeoPoint(centerLocation))
-                onCenterSet()
+    }, update = { mapView ->
+        mapView.overlays.clear()
+
+        if (centerLocation != null) mapView.controller.setCenter(centerLocation)
+
+        if (userLocation != null) {
+            mapView.overlays.add(
+                MapOverlayBuilder.createUserPositionMarker(
+                    currentContext, mapView, userLocation, Color.BLUE
+                )
+            )
+        }
+
+        if (tournaments.data != null) {
+            tournaments.data.forEach { t ->
+                if (t!!.stages!!.isNotEmpty()) mapView.overlays.add(MapOverlayBuilder.createTournamentPositionMarker(
+                    currentContext, mapView, t.stages!!, Color.YELLOW
+                ) {
+                    showStages(t.stages)
+                    true
+                })
             }
         }
 
-        if(userLocation != null) {
-            val marker = Marker(mapView)
-            marker.position = GeoPoint(userLocation)
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-            mapView.overlays.add(marker)
+        if (stages.isNotEmpty()) {
+            stages.forEach {
+                mapView.overlays.add(
+                    MapOverlayBuilder.createStagePositionMarker(
+                        currentContext, mapView, GeoPoint(it.latitude!!, it.longitude!!), Color.MAGENTA
+                    )
+                )
+            }
         }
+
+        //mapView.invalidate()
+
     })
-}
-
-@Composable
-fun rememberMapViewWithLifecycle(): MapView {
-    val context = LocalContext.current
-    val mapView = remember {
-        MapView(context)
-    }
-
-    val lifecycleObserver = rememberMapLifecycleObserver(mapView)
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle) {
-        lifecycle.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycle.removeObserver(lifecycleObserver)
-        }
-    }
-
-    return mapView
-}
-
-@Composable
-fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver = remember(mapView) {
-    LifecycleEventObserver { _, event ->
-        when (event) {
-            Lifecycle.Event.ON_RESUME -> mapView.onResume()
-            Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-            else -> {}
-        }
-    }
 }
