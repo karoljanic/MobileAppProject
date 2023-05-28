@@ -15,4 +15,6 @@ object Values {
 
     const val TOURNAMENTS = "tournaments"
     const val STAGES = "stages"
+
+    const val LEADERBOARD = "leaderboard"
 }

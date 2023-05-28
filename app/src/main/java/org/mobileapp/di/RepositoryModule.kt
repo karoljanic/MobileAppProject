@@ -10,10 +10,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import org.mobileapp.data.repository.LeaderboardRepositoryImpl
 import org.mobileapp.data.repository.LoginRepositoryImpl
 import org.mobileapp.data.repository.ProfileRepositoryImpl
 import org.mobileapp.data.repository.TournamentRepositoryImpl
 import org.mobileapp.data.repository.Values
+import org.mobileapp.domain.repository.LeaderboardRepository
 import org.mobileapp.domain.repository.LoginRepository
 import org.mobileapp.domain.repository.ProfileRepository
 import org.mobileapp.domain.repository.TournamentRepository
@@ -51,6 +53,13 @@ class RepositoryModule {
     fun provideTournamentRepository(
         db: FirebaseDatabase
     ): TournamentRepository = TournamentRepositoryImpl(
+        db = db
+    )
+
+    @Provides
+    fun provideLeaderboardRepository(
+        db: FirebaseDatabase
+    ): LeaderboardRepository = LeaderboardRepositoryImpl(
         db = db
     )
 }
