@@ -52,4 +52,5 @@ class LeaderboardViewModel @Inject constructor(private val repo: LeaderboardRepo
             }
         }
     }
+
 }

@@ -30,7 +30,6 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
     val photoUrl get() = pRepo.photoUrl
     val userID get() = pRepo.uid
-
     val userName get() = pRepo.displayName
 
     private val _centerLocation = mutableStateOf<GeoPoint?>(null)

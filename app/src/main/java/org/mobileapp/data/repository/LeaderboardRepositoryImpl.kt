@@ -1,5 +1,6 @@
 package org.mobileapp.data.repository
 
+import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -36,6 +37,25 @@ class LeaderboardRepositoryImpl @Inject constructor(
             }
         }
         topPlayers.addValueEventListener(event)
+        awaitClose { close() }
+    }
+
+    override suspend fun getTotalScore(playerId: String): Flow<Response<LeaderboardPlayer>> = callbackFlow {
+        trySend(Response.Loading)
+        db.reference.keepSynced(true)
+        val playerScore = db.reference.child(Values.LEADERBOARD).child(playerId)
+        val event = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val score = snapshot.getValue<LeaderboardPlayer>()
+                trySend(Response.Success(score))
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(Response.Failure(Throwable(error.message)))
+            }
+        }
+
+        playerScore.addValueEventListener(event)
         awaitClose { close() }
     }
 }

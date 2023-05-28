@@ -25,22 +25,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.domain.model.Tournament
-import org.mobileapp.domain.model.TournamentStage
-import org.mobileapp.viewmodel.MapViewModel
-import org.mobileapp.viewmodel.ProfileViewModel
 import org.mobileapp.viewmodel.TournamentsViewModel
+import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MyTournaments(
-    tViewModel: TournamentsViewModel = hiltViewModel(),
-    pViewModel: ProfileViewModel = hiltViewModel(),
-    mViewModel: MapViewModel = hiltViewModel()
+    viewModel: TournamentsViewModel = hiltViewModel()
 ) {
     var creatingMode by remember { mutableStateOf(false) }
     var newTournamentName by remember { mutableStateOf("") }
 
-    val tournamentState by tViewModel.tournamentState.collectAsState()
-    val stageState by tViewModel.stageState.collectAsState()
+    val tournamentState by viewModel.tournamentState.collectAsState()
+    val stageState by viewModel.stageState.collectAsState()
 
     if (creatingMode) {
         Column(
@@ -56,8 +52,7 @@ fun MyTournaments(
                     .padding(20.dp),
                 overflow = TextOverflow.Ellipsis,
 
-                text = "You create a tournament with the given name. To add stage to the tournament, " +
-                        "go to the position where the stage is to be placed and update the tournament"
+                text = "You create a tournament with the given name. To add stage to the tournament, " + "go to the position where the stage is to be placed and update the tournament"
             )
 
             TextField(value = newTournamentName,
@@ -77,11 +72,11 @@ fun MyTournaments(
 
                 Button(onClick = {
                     if (newTournamentName != "") {
-                        tViewModel.createTournament(
+                        viewModel.createTournament(
                             Tournament(
                                 name = newTournamentName,
-                                ownerName = pViewModel.displayName,
-                                ownerUID = pViewModel.userUID
+                                ownerName = viewModel.userName,
+                                ownerUID = viewModel.userID
                             )
                         )
                         creatingMode = false
@@ -113,14 +108,15 @@ fun MyTournaments(
 
                 !tournamentState.data.isNullOrEmpty() -> {
                     LazyColumn {
-                        itemsIndexed(tournamentState.data!!.filter { it!!.ownerUID == pViewModel.userUID }) { _, item ->
+                        itemsIndexed(tournamentState.data!!.filter { it!!.ownerUID == viewModel.userID }) { _, item ->
                             TournamentItem(
-                                tViewModel,
+                                viewModel,
                                 item!!,
                                 ArrayList(stageState.data!!.filter { it!!.tournamentId == item.id }),
-                                mViewModel.userLocation.value!!,
-                                { t -> tViewModel.deleteTournament(t) },
-                                { t -> tViewModel.updateTournament(t) },)
+                                GeoPoint(viewModel.userLocation.value!!),
+                                { t -> viewModel.deleteTournament(t) },
+                                { t -> viewModel.updateTournament(t) },
+                            )
                         }
                     }
                 }

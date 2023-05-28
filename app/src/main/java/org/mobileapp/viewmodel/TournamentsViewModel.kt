@@ -13,13 +13,21 @@ import org.mobileapp.domain.model.StageState
 import org.mobileapp.domain.model.Tournament
 import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.domain.model.TournamentState
+import org.mobileapp.domain.repository.ProfileRepository
 import org.mobileapp.domain.repository.TournamentRepository
+import org.mobileapp.service.TrackerService
 import javax.inject.Inject
 
 @HiltViewModel
 class TournamentsViewModel @Inject constructor(
-    private val repo: TournamentRepository
+    private val tRepo: TournamentRepository, private val pRepo: ProfileRepository
 ): ViewModel() {
+
+    val photoUrl get() = pRepo.photoUrl
+    val userID get() = pRepo.uid
+    val userName get() = pRepo.displayName
+
+    val userLocation = TrackerService.currentLocation
 
     private val _tournamentState = MutableStateFlow(TournamentState())
     val tournamentState: StateFlow<TournamentState> = _tournamentState.asStateFlow()
@@ -33,7 +41,7 @@ class TournamentsViewModel @Inject constructor(
     }
 
     private fun getTournaments() = viewModelScope.launch {
-        repo.getTournaments().collect { result ->
+        tRepo.getTournaments().collect { result ->
             when (result) {
                 is Response.Success -> {
                     _tournamentState.update {
@@ -61,7 +69,7 @@ class TournamentsViewModel @Inject constructor(
     }
 
     private fun getStages() = viewModelScope.launch {
-        repo.getStages().collect { result ->
+        tRepo.getStages().collect { result ->
             when (result) {
                 is Response.Success -> {
                     _stageState.update {
@@ -89,7 +97,7 @@ class TournamentsViewModel @Inject constructor(
     }
 
     fun createTournament(tournament: Tournament) = viewModelScope.launch {
-        repo.createTournament(tournament).collect { result ->
+        tRepo.createTournament(tournament).collect { result ->
             when (result) {
                 is Response.Success -> {
                     //Toast.makeText(context, result.data, Toast.LENGTH_SHORT).show()
@@ -106,7 +114,7 @@ class TournamentsViewModel @Inject constructor(
     }
 
     fun createStage(stage: TournamentStage) = viewModelScope.launch {
-        repo.createStage(stage).collect { result ->
+        tRepo.createStage(stage).collect { result ->
             when (result) {
                 is Response.Success -> {
                     //Toast.makeText(context, result.data, Toast.LENGTH_SHORT).show()
@@ -122,7 +130,7 @@ class TournamentsViewModel @Inject constructor(
         }
     }
     fun updateTournament(tournament: Tournament) = viewModelScope.launch {
-        repo.updateTournament(tournament).collect { result ->
+        tRepo.updateTournament(tournament).collect { result ->
             when (result) {
                 is Response.Success -> {
                     //Toast.makeText(context, result.data, Toast.LENGTH_SHORT).show()
@@ -139,7 +147,7 @@ class TournamentsViewModel @Inject constructor(
     }
 
     fun deleteTournament(tournament: Tournament) = viewModelScope.launch {
-        repo.deleteTournament(tournament).collect { result ->
+        tRepo.deleteTournament(tournament).collect { result ->
             when (result) {
                 is Response.Success -> {
                     //Toast.makeText(context, result.data, Toast.LENGTH_SHORT).show()

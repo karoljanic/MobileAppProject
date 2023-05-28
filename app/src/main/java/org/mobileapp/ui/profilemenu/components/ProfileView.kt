@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +29,8 @@ import org.mobileapp.viewmodel.ProfileViewModel
 fun ProfileView(
     viewModel: ProfileViewModel = hiltViewModel(), navigateToAuthScreen: () -> Unit
 ) {
+
+    val totalScore by viewModel.totalScore.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -50,7 +54,8 @@ fun ProfileView(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        Text(text = "Your Total Score: ${1087}")
+        if (totalScore.data == null) Text(text = "Your Total Score: ${0}")
+        else Text(text = "Your Total Score: ${totalScore.data!![0]!!.totalScore}")
 
         Spacer(modifier = Modifier.height(48.dp))
 

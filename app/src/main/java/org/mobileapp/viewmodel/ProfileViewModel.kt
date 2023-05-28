@@ -1,37 +1,39 @@
 package org.mobileapp.viewmodel
 
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.mobileapp.domain.model.LeaderboardState
 import org.mobileapp.domain.model.Response
-import org.mobileapp.domain.model.Tournament
-import org.mobileapp.domain.model.TournamentState
+import org.mobileapp.domain.repository.LeaderboardRepository
 import org.mobileapp.domain.repository.ProfileRepository
 import org.mobileapp.domain.repository.RevokeAccessResponse
 import org.mobileapp.domain.repository.SignOutResponse
-import org.mobileapp.domain.repository.TournamentRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val pRepo: ProfileRepository, private val tRepo: TournamentRepository
+    private val pRepo: ProfileRepository, private val lRepo: LeaderboardRepository
 
 ) : ViewModel() {
     val displayName get() = pRepo.displayName
     val photoUrl get() = pRepo.photoUrl
     val userUID get() = pRepo.uid
+
+    private val _totalScore = MutableStateFlow(LeaderboardState())
+    val totalScore: StateFlow<LeaderboardState> = _totalScore
+
+    init {
+        getTotalScore(userUID)
+    }
 
     var signOutResponse by mutableStateOf<SignOutResponse>(Response.Success(false))
         private set
@@ -46,5 +48,33 @@ class ProfileViewModel @Inject constructor(
     fun revokeAccess() = viewModelScope.launch {
         revokeAccessResponse = Response.Loading
         revokeAccessResponse = pRepo.revokeAccess()
+    }
+
+    private fun getTotalScore(playerId: String) = viewModelScope.launch {
+        lRepo.getTotalScore(playerId).collect { result ->
+            when (result) {
+                is Response.Success -> {
+                    _totalScore.update {
+                        it.copy(
+                            data = listOf(result.data), isLoading = false, errorMsg = null
+                        )
+                    }
+                }
+
+                is Response.Failure -> {
+                    _totalScore.update {
+                        it.copy(data = null, isLoading = false, errorMsg = result.e.message)
+                    }
+                }
+
+                is Response.Loading -> {
+                    _totalScore.update {
+                        it.copy(
+                            data = null, isLoading = true, errorMsg = null
+                        )
+                    }
+                }
+            }
+        }
     }
 }

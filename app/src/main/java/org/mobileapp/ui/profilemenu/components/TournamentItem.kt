@@ -74,17 +74,17 @@ fun TournamentItem(
             ) {
                 Text(text = "stages: ${stages.size}")
                 Text(text = "participants: ${players.flatten().distinctBy { it.playerUID }.size}")
-                Text(text = "best score: ${players.flatten().maxByOrNull { it.bestScore } ?: '-'}")
+                Text(text = "best score: ${players.flatten().maxByOrNull { it.bestScore }?.bestScore ?: '-'}")
             }
 
             if (editingMode) {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                TextField(value = newTournamentName,
+                TextField(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), value = newTournamentName,
                     onValueChange = { newTournamentName = it },
                     label = { Text("Enter New Name") })
 
-                Button(onClick = {
+                Button(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), onClick = {
                     if(newTournamentName.isNotEmpty()) {
                         update(Tournament(id = tournament.id, name = newTournamentName, ownerUID = tournament.ownerUID, ownerName = tournament.ownerName))
                     }
@@ -104,11 +104,11 @@ fun TournamentItem(
                         }
                     }
                 }
-                TextButton(onClick = { expanded = true }) {
+                TextButton(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), onClick = { expanded = true }) {
                     Text(text = selectedGame)
                 }
 
-                Button(onClick = {
+                Button(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), onClick = {
                     viewModel.createStage(
                         TournamentStage(
                             tournamentId = tournament.id,
@@ -123,13 +123,13 @@ fun TournamentItem(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Button(onClick = { delete(tournament)  }) {
+                Button(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), onClick = { delete(tournament)  }) {
                     Text(text = "Delete")
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Button(onClick = { editingMode = false }) {
+                Button(modifier = Modifier.fillMaxWidth().padding(20.dp, 0.dp), onClick = { editingMode = false }) {
                     Text(text = "Exit Editing Mode")
                 }
 
