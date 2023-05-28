@@ -3,7 +3,6 @@ package org.mobileapp.game
 import android.util.Log
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.TWO_PI
-import io.github.sceneview.ar.arcore.position
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.toFloat3
 import kotlin.math.cos
@@ -37,18 +36,26 @@ fun Game.throwDart(velocity: Float): GameObject = GameObject().apply {
     addGameObject(this)
 }
 
-fun Game.groupOfBloons(center: Position, radius: Float, count: Int, height: Float) : List<GameObject> {
-    val list = mutableListOf<Balloon>()
+fun Game.groupOfBloons(center: Position, maxRadius: Float, count: Int, maxHeight: Float) : List<GameObject> {
+    val list = mutableListOf<FloatingBalloon>()
 
     for (i in 1..count) {
-        Balloon(Random.nextFloat() * height).apply {
-            loadModel("models/Bloon.glb")
+        val isSpecial = (i % 5 == 0)
+        val score = if (isSpecial) {500} else {100}
+
+        FloatingBalloon(Random.nextFloat() * maxHeight, score = score).apply {
+            if (isSpecial) {
+                loadModel("models/BloonYellow.glb")
+            }
+            else {
+                loadModel("models/Bloon.glb")
+            }
 
             Log.i("Game", "Spawned")
 
             this.anchor = startingAnchor
 
-            val randRadius = Random.nextFloat() * radius
+            val randRadius = Random.nextFloat() * maxRadius
             val randAngle = Random.nextFloat() * TWO_PI
 
             val x = randRadius * cos(randAngle)
@@ -60,6 +67,31 @@ fun Game.groupOfBloons(center: Position, radius: Float, count: Int, height: Floa
 
             this.velocity.x = (Random.nextFloat() * 2 - 1) / 10f
             this.velocity.z = (Random.nextFloat() * 2 - 1) / 10f
+
+            addGameObject(this)
+        }
+    }
+
+    return list
+}
+
+fun Game.groupOfAggBloons(target: Position, radius: Float, count: Int) : List<GameObject> {
+    val list = mutableListOf<FloatingBalloon>()
+
+    for (i in 1..count) {
+        AggresiveBalloon(target).apply {
+            loadModel("models/Bloon.glb")
+
+            Log.i("Game", "Spawned")
+
+            this.anchor = startingAnchor
+
+            val randAngle = Random.nextFloat() * TWO_PI
+
+            val x = radius * cos(randAngle)
+            val y = radius * sin(randAngle)
+
+            this.position = targetPosition + Float3(x,0f,y)
 
             addGameObject(this)
         }
