@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
         sendActionCommandToService(ServiceAction.STOP_SERVICE.str)
     }
 
+
     private fun sendActionCommandToService(action: String) {
         Intent(applicationContext, TrackerService::class.java).also {
             it.action = action

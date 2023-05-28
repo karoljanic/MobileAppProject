@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +51,11 @@ fun LoginView(viewModel: LoginViewModel = hiltViewModel(), navigateToMapScreen: 
         launcher.launch(intent)
     }
 
+    if(viewModel.isUserAuthenticated) {
+        LaunchedEffect(Unit) {
+            navigateToMapScreen()
+        }
+    }
 
     OneTapLogIn(launch = { launch(it) })
 
