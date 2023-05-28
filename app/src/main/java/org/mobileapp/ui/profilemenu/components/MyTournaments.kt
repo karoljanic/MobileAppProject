@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
@@ -18,54 +18,85 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.mobileapp.domain.model.Tournament
+import org.mobileapp.domain.model.TournamentStage
+import org.mobileapp.viewmodel.MapViewModel
 import org.mobileapp.viewmodel.ProfileViewModel
 import org.mobileapp.viewmodel.TournamentsViewModel
 
 @Composable
 fun MyTournaments(
     tViewModel: TournamentsViewModel = hiltViewModel(),
-    pViewModel: ProfileViewModel = hiltViewModel()
+    pViewModel: ProfileViewModel = hiltViewModel(),
+    mViewModel: MapViewModel = hiltViewModel()
 ) {
-    val creatingMode = remember { mutableStateOf(false) }
+    var creatingMode by remember { mutableStateOf(false) }
+    var newTournamentName by remember { mutableStateOf("") }
 
     val tournamentState by tViewModel.tournamentState.collectAsState()
+    val stageState by tViewModel.stageState.collectAsState()
 
-    if (creatingMode.value) {
+    if (creatingMode) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            TextField(modifier = Modifier.height(height = 40.dp),
-                    value = "tournament name", onValueChange = {})
+            Text(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(20.dp),
+                overflow = TextOverflow.Ellipsis,
 
-            Row(modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceEvenly) {
+                text = "You create a tournament with the given name. To add stage to the tournament, " +
+                        "go to the position where the stage is to be placed and update the tournament"
+            )
+
+            TextField(value = newTournamentName,
+                onValueChange = { newTournamentName = it },
+                label = { Text("Enter Tournament Name") })
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
 
                 Button(onClick = {
-                    creatingMode.value = false
-                }) { Text("Cancel!") }
+                    creatingMode = false
+                }) { Text("Cancel") }
 
                 Button(onClick = {
-                    creatingMode.value = false
-                }) { Text("Create!") }
+                    if (newTournamentName != "") {
+                        tViewModel.createTournament(
+                            Tournament(
+                                name = newTournamentName,
+                                ownerName = pViewModel.displayName,
+                                ownerUID = pViewModel.userUID
+                            )
+                        )
+                        creatingMode = false
+                    }
+                }) { Text("Create") }
             }
         }
     } else {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 20.dp, 0.dp, 0.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = {
-                creatingMode.value = true
-            }) { Text("Create New Tournament!") }
+            Button(modifier = Modifier.padding(20.dp), onClick = {
+                creatingMode = true
+            }) { Text("Create New Tournament") }
 
             when {
                 tournamentState.isLoading -> {
@@ -82,18 +113,14 @@ fun MyTournaments(
 
                 !tournamentState.data.isNullOrEmpty() -> {
                     LazyColumn {
-                        itemsIndexed(tournamentState.data!!) { index, item ->
+                        itemsIndexed(tournamentState.data!!.filter { it!!.ownerUID == pViewModel.userUID }) { _, item ->
                             TournamentItem(
-                                name = item?.name!!,
-                                players = item.players!!,
-                                stages = item.stages!!
-                                // onUpdateClick = { id, name ->
-                                //    tViewModel.updateTournament(RealtimeDBUser(id, name))
-                                // },
-                                //onDeleteClick = { id, name ->
-                                //   tViewModel.deleteTournament(RealtimeDBUser(id, name))
-                                // })
-                            )
+                                tViewModel,
+                                item!!,
+                                ArrayList(stageState.data!!.filter { it!!.tournamentId == item.id }),
+                                mViewModel.userLocation.value!!,
+                                { t -> tViewModel.deleteTournament(t) },
+                                { t -> tViewModel.updateTournament(t) },)
                         }
                     }
                 }

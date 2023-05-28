@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -27,7 +28,7 @@ fun CenterMapButton(modifier: Modifier, onClick: () -> Unit) {
     IconButton(onClick = onClick, modifier = modifier, content = {
         Box(
             modifier = Modifier
-                .background(Color.Red, CircleShape)
+                .background(colorResource(R.color.purple_700), CircleShape)
         ) {
             Image(
                 painter = painterResource(R.drawable.icon_my_location_24),

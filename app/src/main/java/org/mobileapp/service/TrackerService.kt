@@ -10,7 +10,6 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.mobileapp.data.configuration.TrackerServiceConfig
 import org.mobileapp.data.datastore.MapSettings
-import org.mobileapp.domain.model.Track
 import org.mobileapp.utils.TrackingNotificationBuilder
 import org.mobileapp.service.enums.ServiceAction.*
 import org.mobileapp.service.enums.ServiceStatus
@@ -48,9 +46,6 @@ class TrackerService : LifecycleService() {
 
     companion object {
         val isTracking = MutableLiveData<Boolean>()
-        val track = MutableLiveData<Track>()
-        val trackingTime = MutableLiveData<Long>()
-        val trackingDistance = MutableLiveData<Double>()
         val currentLocation = MutableLiveData<Location>()
     }
 
@@ -67,28 +62,13 @@ class TrackerService : LifecycleService() {
         gpsProviderActive = LocationUtils.isGpsEnabled(locationManager)
         networkProviderActive = LocationUtils.isNetworkEnabled(locationManager)
 
-        runBlocking { currentLocation.postValue(MapSettings(applicationContext).getLocation.first()!!) }
+        runBlocking { currentLocation.postValue(MapSettings(applicationContext).getLocation.first()) }
 
         restartStates()
-
-        isTracking.observe(this) {
-            updateLocationTracking(it)
-            updateNotificationTrackingState(it)
-        }
     }
 
     private fun restartStates() {
         isTracking.postValue(false)
-        track.postValue(Track())
-        trackingTime.postValue(0)
-        trackingTime.postValue(0)
-    }
-
-    private fun updateLocationTracking(isTracking: Boolean) {
-    }
-
-    private fun updateNotificationTrackingState(isTracking: Boolean?) {
-
     }
 
     private fun startTracking() {
@@ -141,21 +121,6 @@ class TrackerService : LifecycleService() {
 
         return super.onStartCommand(intent, flags, startId)
     }
-
-    /*
-    fun clearTrack() {
-        track = Track()
-        LocalDataUtils.deleteTempFile(this)
-        serviceStatus = ServiceAction.IS_NOT_RUNNING
-
-        Settings.setCurrentServiceStatus(serviceStatus)
-        stopForeground(STOP_FOREGROUND_DETACH)
-        notificationManager.cancel(TrackerServiceConfig.TRACKER_SERVICE_NOTIFICATION_ID)
-
-        Log.i("CLEAR", "TRACK")
-    }
-     */
-
 
     private fun createLocationListener(): LocationListener {
         return object : LocationListener {
@@ -276,52 +241,8 @@ class TrackerService : LifecycleService() {
         return notification
     }
 
-    private fun addNodeToTrack(): Boolean {
-        //Log.i("AKTUALNA POZYCJA: ", currentLocation.value.toString())
-        /*
-        val previousLocation: Location?
-        var numberOfNodes: Int = track.trackNodes.size
-
-        when (numberOfNodes) {
-            0 -> {
-                previousLocation = null
-            }
-            1 -> {
-                previousLocation = null
-                numberOfNodes = 0
-                track.trackNodes.removeAt(0)
-            }
-            else -> {
-                previousLocation = track.trackNodes[numberOfNodes - 1].getLocation()
-            }
-        }
-
-        val shouldBeAdded: Boolean = LocationUtils.isRecentEnough(lastLocation) &&
-                LocationUtils.isAccurateEnough(
-                    lastLocation,
-                    TrackerServiceConfig.LOCATION_ACCURACY_THRESHOLD
-                ) &&
-                LocationUtils.isDifferentEnough(
-                    previousLocation,
-                    lastLocation,
-                    TrackerServiceConfig.ACCURACY_MULTIPLIER
-                )
-
-        if (shouldBeAdded) {
-            track.trackNodes.add(TrackNode(lastLocation))
-
-            return true
-        }
-
-         */
-
-        return false
-    }
-
     private val periodicTrackUpdate: Runnable = object : Runnable {
         override fun run() {
-            val successfullyAdded = addNodeToTrack()
-
             displayNotification()
 
             handler.postDelayed(

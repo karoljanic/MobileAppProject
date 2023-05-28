@@ -22,7 +22,7 @@ class ProfileRepositoryImpl @Inject constructor(
 ) : ProfileRepository {
     override val displayName = auth.currentUser?.displayName ?: "Placeholder name"
     override val photoUrl = auth.currentUser?.photoUrl?.toString() ?: "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
-
+    override val uid = auth.uid ?: "Default UID"
     override suspend fun signOut(): SignOutResponse {
         return try {
             oneTapClient.signOut().await()

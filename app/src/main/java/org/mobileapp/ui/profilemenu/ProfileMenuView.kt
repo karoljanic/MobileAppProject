@@ -28,7 +28,7 @@ import org.mobileapp.ui.profilemenu.components.ProfileView
 @ExperimentalFoundationApi
 @Composable
 fun ProfileMenuView(
-    navigateToAuthScreen: () -> Unit,
+    navigateToAuthScreen: () -> Unit
 ) {
     val tabTitles = listOf("My Tournaments", "Profile", "Leaderboard")
     val pagerState = rememberPagerState(initialPage = 1) { 3 }
