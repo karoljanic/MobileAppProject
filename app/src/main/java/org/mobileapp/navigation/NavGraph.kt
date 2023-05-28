@@ -3,13 +3,11 @@ package org.mobileapp.navigation
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.mobileapp.ui.GameView
+import org.mobileapp.ui.game.GameView
 import org.mobileapp.ui.permission.PermissionView
 import org.mobileapp.ui.map.MapView
 import org.mobileapp.ui.login.LoginView
@@ -20,9 +18,10 @@ import org.mobileapp.ui.profilemenu.ProfileMenuView
 fun NavGraph() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController,
+    NavHost(
+        navController = navController,
         startDestination = Screen.PermissionsScreen.route,
-        ) {
+    ) {
 
         composable(
             route = Screen.PermissionsScreen.route
@@ -42,8 +41,6 @@ fun NavGraph() {
                     }
                 }
             })
-//
-//            BackHandler(true) { }
         }
 
         composable(
@@ -52,8 +49,6 @@ fun NavGraph() {
             ProfileMenuView(navigateToAuthScreen = {
                 navController.navigate(Screen.LoginScreen.route)
             })
-
-            //BackHandler(true) {  navController.navigate(Screen.MapScreen.route) }
         }
 
         composable(
@@ -61,12 +56,9 @@ fun NavGraph() {
         ) {
             MapView(navigateToProfileScreen = {
                 navController.navigate(Screen.ProfileScreen.route)
-            }, navigateToGameScreen = {
-                    sid, pid, type, lat, lon ->
+            }, navigateToGameScreen = { sid, pid, type, lat, lon ->
                 navController.navigate(Screen.GameScreen.route + "/$type/$lat/$lon/$sid/$pid")
             })
-
-//            BackHandler(true) { }
         }
 
         composable(
@@ -78,7 +70,12 @@ fun NavGraph() {
             val stageId = it.arguments?.getString("sid")
             val playerId = it.arguments?.getString("pid")
 
-            GameView(stageId!!, playerId!!, gameType!!, latitude!!.toDouble(), longitude!!.toDouble())
+            BackHandler(true) { }
+
+            GameView(
+                stageId!!, playerId!!, gameType!!, latitude!!.toDouble(), longitude!!.toDouble(),
+                {/* navController.popBackStack() */}
+            )
         }
     }
 }

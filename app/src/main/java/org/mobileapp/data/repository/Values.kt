@@ -15,4 +15,7 @@ object Values {
 
     const val TOURNAMENTS = "tournaments"
     const val STAGES = "stages"
+    const val PLAYERS = "players"
+    const val PLAYER_UID = "playerUID"
+    const val BEST_SCORE = "bestScore"
 }

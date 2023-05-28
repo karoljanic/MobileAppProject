@@ -10,8 +10,12 @@ import com.google.firebase.database.ktx.getValue
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import org.mobileapp.data.repository.Values.BEST_SCORE
+import org.mobileapp.data.repository.Values.PLAYERS
+import org.mobileapp.data.repository.Values.PLAYER_UID
 import org.mobileapp.data.repository.Values.STAGES
 import org.mobileapp.data.repository.Values.TOURNAMENTS
+import org.mobileapp.data.repository.Values.USERS
 import org.mobileapp.domain.model.Response
 import org.mobileapp.domain.model.Tournament
 import org.mobileapp.domain.model.TournamentStage
@@ -97,28 +101,53 @@ class TournamentRepositoryImpl @Inject constructor(
         awaitClose { close() }
     }
 
-    override suspend fun updateTournament(tournament: Tournament): Flow<Response<String>> = callbackFlow {
-        db.reference.child(TOURNAMENTS).child(tournament.id!!).updateChildren(tournament.toMap())
-            .addOnSuccessListener { trySend(Response.Success("Tournament updated")) }
-            .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+    override suspend fun updateTournament(tournament: Tournament): Flow<Response<String>> =
+        callbackFlow {
+            db.reference.child(TOURNAMENTS).child(tournament.id!!)
+                .updateChildren(tournament.toMap())
+                .addOnSuccessListener { trySend(Response.Success("Tournament updated")) }
+                .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+            awaitClose { close() }
+        }
+
+    override suspend fun updateStage(stage: TournamentStage): Flow<Response<String>> =
+        callbackFlow {
+            db.reference.child(STAGES).child(stage.id!!).updateChildren(stage.toMap())
+                .addOnSuccessListener { trySend(Response.Success("Stage updated")) }
+                .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+            awaitClose { close() }
+        }
+
+    override suspend fun deleteTournament(tournament: Tournament): Flow<Response<String>> =
+        callbackFlow {
+            db.reference.child(TOURNAMENTS).child(tournament.id!!).removeValue()
+                .addOnSuccessListener { trySend(Response.Success("Tournament deleted")) }
+                .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+            awaitClose { close() }
+        }
+
+    override suspend fun updateScore(
+        stageId: String, userId: String, newScore: Int
+    ): Flow<Response<String>> = callbackFlow {
+        val ref = db.reference.child(STAGES).child(stageId).child(PLAYERS).orderByChild(PLAYER_UID)
+            .equalTo(userId)
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userKey = snapshot.children.first().key!!
+
+                    db.getReference(STAGES).child(stageId).child(PLAYERS).child(userKey).child(BEST_SCORE).setValue(newScore)
+                        .addOnSuccessListener { trySend(Response.Success("Score updated")) }
+                        .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(Response.Failure(Throwable(error.message)))
+            }
+        })
+
         awaitClose { close() }
     }
-
-    override suspend fun updateStage(stage: TournamentStage): Flow<Response<String>> = callbackFlow {
-        db.reference.child(STAGES).child(stage.id!!).updateChildren(stage.toMap())
-            .addOnSuccessListener { trySend(Response.Success("Stage updated")) }
-            .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
-        awaitClose { close() }
-    }
-
-    override suspend fun deleteTournament(tournament: Tournament): Flow<Response<String>> = callbackFlow {
-        db.reference.child(TOURNAMENTS).child(tournament.id!!).removeValue()
-            .addOnSuccessListener { trySend(Response.Success("Tournament deleted")) }
-            .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
-        awaitClose { close() }
-    }
-
-    //override suspend fun updateScore(stageId: String, userId: String, newScore: Int): Flow<Response<String>> = callbackFlow {
-    //    db.reference.child(STAGES).child(stageId).
-    //}
 }

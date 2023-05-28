@@ -6,7 +6,7 @@ import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 
-open class GameObject(): ArModelNode( placementMode = PlacementMode.BEST_AVAILABLE, hitPosition = DEFAULT_HIT_POSITION, followHitPosition = false, instantAnchor = false) {
+open class GameObject: ArModelNode( placementMode = PlacementMode.BEST_AVAILABLE, hitPosition = DEFAULT_HIT_POSITION, followHitPosition = false, instantAnchor = false) {
     var velocity = Float3()
     var acceleration = Float3()
 

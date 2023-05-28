@@ -1,21 +1,11 @@
 package org.mobileapp.game
 
 import android.util.Log
-import com.google.ar.core.Anchor
-import com.google.ar.core.HitResult
-import dev.romainguy.kotlin.math.Float3
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.ar.arcore.position
-import io.github.sceneview.ar.arcore.rotation
-import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
-import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.collision.overlapTest
-import io.github.sceneview.math.Position
-import io.github.sceneview.math.toFloat3
-import kotlin.math.atan2
-import kotlin.random.Random
 
 class BalloonGame(
     sceneView: ArSceneView,
