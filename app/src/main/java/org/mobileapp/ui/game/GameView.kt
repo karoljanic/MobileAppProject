@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Snackbar
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +34,22 @@ import org.mobileapp.R
 import org.mobileapp.viewmodel.GameViewModel
 import kotlin.math.abs
 
+private object Constants {
+    val DRAGGABLE_ORIENTATION = Orientation.Vertical
+    const val DRAGGABLE_REVERSE_DIRECTION = true
+    const val MIN_LONGITUDE_DIFF = 0.00003
+    const val MAX_LONGITUDE_DIFF = 0.00015
+    const val MIN_LATITUDE_DIFF = 0.00002
+    const val MAX_LATITUDE_DIFF = 0.00009
+    const val EARTH_ALTITUDE_OFFSET = 1f
+    const val ROTATION_X = 0f
+    const val ROTATION_Y = 0f
+    const val ROTATION_Z = 0f
+    val PADDING_DP = 10.dp
+    val SCORE_TEXT_FONT_SIZE = 25.sp
+    val TIME_TEXT_FONT_SIZE = 25.sp
+}
+
 @Composable
 fun GameView(
     stageId: String,
@@ -51,8 +69,8 @@ fun GameView(
         modifier = Modifier
             .fillMaxSize()
             .draggable(draggableState,
-                Orientation.Vertical,
-                reverseDirection = true,
+                Constants.DRAGGABLE_ORIENTATION,
+                Constants.DRAGGABLE_REVERSE_DIRECTION,
                 onDragStopped = { gameViewModel.game?.onSwipe(0f, it) })
     ) {
         ARScene(modifier = Modifier.fillMaxSize(),
@@ -76,10 +94,11 @@ fun GameView(
                         val latDiff = abs(earth.cameraGeospatialPose.latitude - latitude)
                         val longDiff = abs(earth.cameraGeospatialPose.longitude - longitude)
 
-                        if (longDiff in 0.00003..0.00015 && latDiff in 0.00002..0.00009) {
+                        if (longDiff in Constants.MIN_LONGITUDE_DIFF..Constants.MAX_LONGITUDE_DIFF &&
+                            latDiff in Constants.MIN_LATITUDE_DIFF..Constants.MAX_LATITUDE_DIFF) {
                             // Place the earth anchor at the same altitude as that of the camera to make it easier to view.
-                            val altitude = earth.cameraGeospatialPose.altitude - 1f
-                            val rotation = Rotation(0f, 0f, 0f)
+                            val altitude = earth.cameraGeospatialPose.altitude - Constants.EARTH_ALTITUDE_OFFSET
+                            val rotation = Rotation(Constants.ROTATION_X, Constants.ROTATION_Y, Constants.ROTATION_Z)
 
                             val earthAnchor = earth.createAnchor(
                                 latitude,
@@ -116,26 +135,57 @@ fun GameView(
             }
         }
 
+        val purpleColor = colorResource(id = R.color.purple_700)
+        val purpleColorWithAlpha = purpleColor.copy(alpha = 0.5f)
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-                .background(colorResource(R.color.purple_700)),
+                .padding(Constants.PADDING_DP),
             verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Score: ${gameViewModel.score}",
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                color = Color.White
-            )
-            Text(
-                text = "Time: ${"%.1f".format(gameViewModel.time)}",
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                color = Color.White
-            )
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = purpleColorWithAlpha,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text = "Score:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = Constants.SCORE_TEXT_FONT_SIZE,
+                        color = Color.LightGray
+                    )
+                    Text(
+                        text = " ${gameViewModel.score}",
+                        fontWeight = FontWeight.Normal,
+                        fontSize = Constants.SCORE_TEXT_FONT_SIZE,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = purpleColorWithAlpha,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text = "Time:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = Constants.TIME_TEXT_FONT_SIZE,
+                        color = Color.LightGray
+                    )
+                    Text(
+                        text = " ${"%.1f".format(gameViewModel.time)}s",
+                        fontWeight = FontWeight.Normal,
+                        fontSize = Constants.TIME_TEXT_FONT_SIZE,
+                        color = Color.White
+                    )
+                }
+            }
         }
 
     }

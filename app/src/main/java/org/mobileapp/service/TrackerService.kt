@@ -125,9 +125,7 @@ class TrackerService : LifecycleService() {
     private fun createLocationListener(): LocationListener {
         return object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                if (LocationUtils.newLocationIsReliable(location, currentLocation.value)) {
-                    currentLocation.postValue(location)
-                }
+                currentLocation.postValue(location)
             }
 
             override fun onProviderEnabled(provider: String) {
