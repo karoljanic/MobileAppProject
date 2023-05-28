@@ -6,13 +6,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.hardware.camera2.CameraManager
 import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
@@ -27,22 +25,25 @@ import org.mobileapp.viewmodel.PermissionViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PermissionsView(
+fun PermissionView(
     viewModel: PermissionViewModel = viewModel(), navigateToLoginScreen: () -> Unit
 ) {
     val context = LocalContext.current
     val dialogQueue = viewModel.visiblePermissionDialogQueue
     val multiplePermissionsState =
         rememberMultiplePermissionsState(permissions = viewModel.necessaryPermissions.keys.toList())
-
     val isLocationEnabled = remember { mutableStateOf(false) }
 
     when {
         multiplePermissionsState.allPermissionsGranted -> {
-            if(isLocationEnabled.value)
-                navigateToLoginScreen.invoke()
-            else
+            if(isLocationEnabled.value) {
+                LaunchedEffect(Unit) {
+                    navigateToLoginScreen.invoke()
+                }
+            }
+            else {
                 LocalizationNotAvailableDialog()
+            }
         }
     }
 
@@ -71,7 +72,7 @@ fun PermissionsView(
         }, isPermanentlyDeclined = !shouldShowRequestPermissionRationale(
             LocalContext.current as Activity, permission
         ), onDismiss = viewModel::dismissDialog, onOkClick = {
-            //viewModel.dismissDialog()
+            viewModel.dismissDialog()
             permissionResultLauncher.launch(
                 arrayOf(permission)
             )

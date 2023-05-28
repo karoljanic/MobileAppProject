@@ -1,6 +1,5 @@
 package org.mobileapp.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,8 +20,6 @@ class LoginViewModel @Inject constructor(
     private val repo: LoginRepository,
     val oneTapClient: SignInClient
 ): ViewModel() {
-    val isUserAuthenticated get() = repo.isUserAuthenticatedInFirebase
-
     var oneTapSignInResponse by mutableStateOf<OneTapSignInResponse>(Response.Success(null))
         private set
     var signInWithGoogleResponse by mutableStateOf<SignInWithGoogleResponse>(Response.Success(false))

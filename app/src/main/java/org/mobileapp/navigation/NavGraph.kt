@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.mobileapp.ui.GameView
-import org.mobileapp.ui.permission.PermissionsView
+import org.mobileapp.ui.permission.PermissionView
 import org.mobileapp.ui.map.MapView
 import org.mobileapp.ui.login.LoginView
 import org.mobileapp.ui.profilemenu.ProfileMenuView
@@ -22,13 +22,12 @@ fun NavGraph() {
 
     NavHost(navController = navController,
         startDestination = Screen.PermissionsScreen.route,
-        //startDestination = Screen.MapScreen.route,
         ) {
 
         composable(
             route = Screen.PermissionsScreen.route
         ) {
-            PermissionsView(navigateToLoginScreen = {
+            PermissionView(navigateToLoginScreen = {
                 navController.navigate(Screen.LoginScreen.route)
             })
         }
@@ -38,9 +37,9 @@ fun NavGraph() {
         ) {
             LoginView(navigateToMapScreen = {
                 navController.navigate(Screen.MapScreen.route) {
-//                    popUpTo(Screen.PermissionsScreen.route) {
-//                        inclusive = true
-//                    }
+                    popUpTo(Screen.PermissionsScreen.route) {
+                        inclusive = true
+                    }
                 }
             })
 //
