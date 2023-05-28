@@ -18,4 +18,6 @@ object Values {
     const val PLAYERS = "players"
     const val PLAYER_UID = "playerUID"
     const val BEST_SCORE = "bestScore"
+
+    const val LEADERBOARD = "leaderboard"
 }
