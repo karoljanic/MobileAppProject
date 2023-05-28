@@ -13,7 +13,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.mobileapp.R
-import org.mobileapp.ui.StringValues
 
 
 @Composable
@@ -35,7 +34,7 @@ fun LoginButton(
             contentDescription = null
         )
         Text(
-            text = StringValues.LOG_IN_WITH_GOOGLE,
+            text = "Log in with Google",
             modifier = Modifier.padding(6.dp),
             fontSize = 18.sp
         )

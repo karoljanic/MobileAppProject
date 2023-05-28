@@ -1,6 +1,7 @@
 package org.mobileapp.viewmodel
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,11 +26,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val repo: ProfileRepository, private val tournamentRepo: TournamentRepository
+    private val pRepo: ProfileRepository, private val tRepo: TournamentRepository
 
 ) : ViewModel() {
-    val displayName get() = repo.displayName
-    val photoUrl get() = repo.photoUrl
+    val displayName get() = pRepo.displayName
+    val photoUrl get() = pRepo.photoUrl
+    val userUID get() = pRepo.uid
 
     var signOutResponse by mutableStateOf<SignOutResponse>(Response.Success(false))
         private set
@@ -38,11 +40,11 @@ class ProfileViewModel @Inject constructor(
 
     fun signOut() = viewModelScope.launch {
         signOutResponse = Response.Loading
-        signOutResponse = repo.signOut()
+        signOutResponse = pRepo.signOut()
     }
 
     fun revokeAccess() = viewModelScope.launch {
         revokeAccessResponse = Response.Loading
-        revokeAccessResponse = repo.revokeAccess()
+        revokeAccessResponse = pRepo.revokeAccess()
     }
 }

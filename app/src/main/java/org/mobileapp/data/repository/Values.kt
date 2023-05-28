@@ -14,4 +14,5 @@ object Values {
     const val SIGN_UP_REQUEST = "signUpRequest"
 
     const val TOURNAMENTS = "tournaments"
+    const val STAGES = "stages"
 }

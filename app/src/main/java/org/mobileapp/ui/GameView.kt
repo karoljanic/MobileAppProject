@@ -24,11 +24,13 @@ import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
+import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.game.BalloonGame
 import org.mobileapp.viewmodel.GameViewModel
+import org.mobileapp.viewmodel.TournamentsViewModel
 
 @Composable
-fun GameView(state: GameViewModel = viewModel()) {
+fun GameView(stageId: String, playerId: String, gameType: String, latitude: Double, longitude: Double, state: GameViewModel = viewModel()) {
     val draggableState = rememberDraggableState(onDelta = {})
 
     Box(
@@ -101,3 +103,6 @@ fun GameView(state: GameViewModel = viewModel()) {
 //else {
 //    Log.i("loading", "$earth")
 //}
+
+//resolve anchor in terrian
+// state.anchorGame

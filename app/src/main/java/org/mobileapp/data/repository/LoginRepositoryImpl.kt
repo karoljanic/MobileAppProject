@@ -67,7 +67,6 @@ class LoginRepositoryImpl @Inject constructor(
         auth.currentUser?.apply {
             val user = toUser()
             db.reference.child(USERS).child(uid).setValue(user)
-            Log.i("DATABASE", "BYLEM TU")
         }
     }
 

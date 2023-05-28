@@ -36,8 +36,6 @@ fun LoginView(
                     viewModel.oneTapSignIn()
                 }
             )
-            /// DEBUG
-            Button(onClick = navigateToMapScreen, content = {Text("Skip")})
         }
     )
 
