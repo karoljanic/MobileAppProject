@@ -2,20 +2,26 @@ package org.mobileapp.data.repository
 
 
 import android.util.Log
+import com.google.android.gms.auth.api.Auth
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import org.mobileapp.data.repository.Values.BEST_SCORE
+import org.mobileapp.data.repository.Values.LEADERBOARD
 import org.mobileapp.data.repository.Values.PLAYERS
 import org.mobileapp.data.repository.Values.PLAYER_UID
 import org.mobileapp.data.repository.Values.STAGES
 import org.mobileapp.data.repository.Values.TOURNAMENTS
 import org.mobileapp.data.repository.Values.USERS
+import org.mobileapp.domain.model.LeaderboardPlayer
 import org.mobileapp.domain.model.Response
 import org.mobileapp.domain.model.Tournament
 import org.mobileapp.domain.model.TournamentStage
@@ -25,8 +31,12 @@ import javax.inject.Singleton
 
 @Singleton
 class TournamentRepositoryImpl @Inject constructor(
-    private val db: FirebaseDatabase
+    private val db: FirebaseDatabase,
+    private val auth: FirebaseAuth
 ) : TournamentRepository {
+    val displayName = auth.currentUser?.displayName ?: "Placeholder name"
+    val uid = auth.uid ?: "Default UID"
+
 
     override suspend fun createTournament(tournament: Tournament): Flow<Response<String>> =
         callbackFlow {
@@ -129,17 +139,30 @@ class TournamentRepositoryImpl @Inject constructor(
     override suspend fun updateScore(
         stageId: String, userId: String, newScore: Int
     ): Flow<Response<String>> = callbackFlow {
-        val ref = db.reference.child(STAGES).child(stageId).child(PLAYERS).orderByChild(PLAYER_UID)
-            .equalTo(userId)
+        val tourRef =
+            db.reference.child(STAGES).child(stageId).child(PLAYERS).orderByChild(PLAYER_UID)
+                .equalTo(uid)
 
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+        tourRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val userKey = snapshot.children.first().key!!
+                    val ref = db.getReference(STAGES).child(stageId).child(PLAYERS).child(userKey)
+                        .child(BEST_SCORE)
 
-                    db.getReference(STAGES).child(stageId).child(PLAYERS).child(userKey).child(BEST_SCORE).setValue(newScore)
-                        .addOnSuccessListener { trySend(Response.Success("Score updated")) }
-                        .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+                    ref.get().addOnSuccessListener { data ->
+                        val score = data.getValue<Int>()
+
+                        if (score!! < newScore) {
+                            ref.setValue(newScore)
+                                .addOnSuccessListener { trySend(Response.Success("Score updated")) }
+                                .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+
+                            db.getReference(LEADERBOARD).child(uid).setValue(mapOf("playerName" to displayName, "playerUID" to uid, "totalScore" to ServerValue.increment((newScore - score).toLong())))
+                                .addOnSuccessListener { trySend(Response.Success("Max Score updated")) }
+                                .addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
+                        }
+                    }.addOnFailureListener { trySend(Response.Failure(Throwable(it.message))) }
                 }
             }
 
@@ -147,6 +170,8 @@ class TournamentRepositoryImpl @Inject constructor(
                 trySend(Response.Failure(Throwable(error.message)))
             }
         })
+
+
 
         awaitClose { close() }
     }
