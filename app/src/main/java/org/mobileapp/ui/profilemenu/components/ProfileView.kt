@@ -38,8 +38,10 @@ fun ProfileView(
         verticalArrangement = Arrangement.Center
     ) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(viewModel.photoUrl)
-                .crossfade(true).build(),
+            model = viewModel.photoUrl.let {
+                ImageRequest.Builder(LocalContext.current).data(it)
+                    .crossfade(true).build()
+            },
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -54,8 +56,11 @@ fun ProfileView(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        if (totalScore.data == null) Text(text = "Your Total Score: ${0}")
-        else Text(text = "Your Total Score: ${totalScore.data!![0]!!.totalScore}")
+        if (totalScore.data.isNullOrEmpty() || totalScore.data!![0] == null) {
+            Text(text = "Your Total Score: 0")
+        } else {
+            Text(text = "Your Total Score: ${totalScore.data!![0]!!.totalScore}")
+        }
 
         Spacer(modifier = Modifier.height(48.dp))
 
