@@ -51,10 +51,13 @@ class RepositoryModule {
 
     @Provides
     fun provideTournamentRepository(
-        db: FirebaseDatabase
+        db: FirebaseDatabase,
+        auth: FirebaseAuth
     ): TournamentRepository = TournamentRepositoryImpl(
-        db = db
-    )
+        db = db,
+        auth = auth,
+
+        )
 
     @Provides
     fun provideLeaderboardRepository(
