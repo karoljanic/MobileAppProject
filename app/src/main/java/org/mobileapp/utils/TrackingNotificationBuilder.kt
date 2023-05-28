@@ -4,6 +4,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,8 +23,8 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
     private val notificationManager: NotificationManager =
         trackerService.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val contentTitle: String = "Some Title"
-    private val contentText: String = "Some Interesting Content"
+    private val contentTitle: String = "Mobile App"
+    private val contentText: String = "Application is tracking your position"
 
 
     private val stopActionPendingIntent = PendingIntent.getService(
@@ -39,10 +40,6 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
             getPendingIntent(10, PendingIntent.FLAG_IMMUTABLE)
         }
 
-    private val stopAction = NotificationCompat.Action(
-        R.drawable.icon_stop_24, "Pause Notification", stopActionPendingIntent
-    )
-
     private val showAction = NotificationCompat.Action(
         R.drawable.icon_show_24, "Show Notification", showActionPendingIntent
     )
@@ -57,29 +54,15 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
             trackerService, TrackerServiceConfig.NOTIFICATION_CHANNEL_ID
         )
         builder.setContentIntent(showActionPendingIntent)
-        builder.setSmallIcon(R.drawable.icon_notifications_active_24)
+        builder.setSmallIcon(R.drawable.ic_launcher_foreground)
         builder.setContentText(contentText)
-
-        when (serviceStatus) {
-            ServiceStatus.IS_RUNNING -> {
-                builder.setContentTitle(contentTitle)
-                builder.addAction(stopAction)
-                builder.setLargeIcon(
-                    AppCompatResources.getDrawable(
-                        trackerService, R.drawable.icon_notifications_active_24
-                    )!!.toBitmap()
-                )
-            }
-            else -> {
-                builder.setContentTitle(contentTitle)
-                builder.addAction(showAction)
-                builder.setLargeIcon(
-                    AppCompatResources.getDrawable(
-                        trackerService, R.drawable.icon_notifications_active_24
-                    )!!.toBitmap()
-                )
-            }
-        }
+        builder.setContentTitle(contentTitle)
+        builder.addAction(showAction)
+        builder.setLargeIcon(
+            AppCompatResources.getDrawable(
+                trackerService, R.drawable.ic_launcher_foreground
+            )!!.toBitmap()
+        )
 
         return builder.build()
     }
@@ -99,8 +82,8 @@ class TrackingNotificationBuilder(private val trackerService: TrackerService) {
             TrackerServiceConfig.NOTIFICATION_CHANNEL_NAME,
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-                description = TrackerServiceConfig.NOTIFICATION_CHANNEL_DESCRIPTION
-            }
+            description = TrackerServiceConfig.NOTIFICATION_CHANNEL_DESCRIPTION
+        }
         notificationManager.createNotificationChannel(notificationChannel)
     }
 }

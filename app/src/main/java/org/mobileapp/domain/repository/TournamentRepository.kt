@@ -13,5 +13,5 @@ interface TournamentRepository {
     suspend fun updateTournament(tournament: Tournament): Flow<Response<String>>
     suspend fun updateStage(stage: TournamentStage): Flow<Response<String>>
     suspend fun deleteTournament(tournament: Tournament): Flow<Response<String>>
-    //suspend fun updateScore(stageId: String, userId: String, newScore: Int): Flow<Response<String>>
+    suspend fun updateScore(stageId: String, userId: String, newScore: Int): Flow<Response<String>>
 }

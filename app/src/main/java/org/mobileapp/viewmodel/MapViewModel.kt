@@ -4,7 +4,6 @@ package org.mobileapp.viewmodel
 import android.location.Location
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,14 +13,14 @@ import org.mobileapp.data.configuration.MapConfig
 import org.mobileapp.domain.model.Response
 import org.mobileapp.domain.model.StageState
 import org.mobileapp.domain.model.Tournament
+import org.mobileapp.domain.model.TournamentPlayer
 import org.mobileapp.domain.model.TournamentStage
 import org.mobileapp.domain.model.TournamentState
 import org.mobileapp.domain.repository.ProfileRepository
 import org.mobileapp.domain.repository.TournamentRepository
 import org.mobileapp.service.TrackerService
+import org.mobileapp.utils.TournamentUtils
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.ItemizedOverlay
-import org.osmdroid.views.overlay.OverlayItem
 import javax.inject.Inject
 
 
@@ -30,15 +29,15 @@ class MapViewModel @Inject constructor(
     private val pRepo: ProfileRepository, private val tRepo: TournamentRepository
 ) : ViewModel() {
     val photoUrl get() = pRepo.photoUrl
+    val userID get() = pRepo.uid
+
+    val userName get() = pRepo.displayName
 
     private val _centerLocation = mutableStateOf<GeoPoint?>(null)
     val centerLocation: State<GeoPoint?> = _centerLocation
 
     private val _userLocation = mutableStateOf<GeoPoint?>(null)
     val userLocation: State<GeoPoint?> = _userLocation
-
-    private val _userOverlay = mutableStateOf<ItemizedOverlay<OverlayItem>?>(null)
-    val userOverlay = _userOverlay
 
     private val _mapZoom = mutableStateOf<Double>(MapConfig.DEFAULT_MAP_ZOOM)
     val mapZoom: State<Double> = _mapZoom
@@ -47,13 +46,11 @@ class MapViewModel @Inject constructor(
     val tournaments: State<TournamentState> = _tournaments
 
     private val _allStages = mutableStateOf(StageState())
-    val allStages: State<StageState> = _allStages
 
     private val _stages = mutableListOf<TournamentStage?>()
     val stages: MutableList<TournamentStage?> = _stages
 
     private val _chosenTournament = mutableStateOf(Tournament())
-    val chosenTournament: State<Tournament> = _chosenTournament
 
     private var mapCenterIsSet = false
 
@@ -92,14 +89,30 @@ class MapViewModel @Inject constructor(
         _centerLocation.value = _userLocation.value
     }
 
-    fun showStages(tournament: Tournament) {
-        _stages.clear()
-        _chosenTournament.value = tournament
-        _stages.addAll(ArrayList(allStages.value.data!!.filter { it!!.tournamentId == tournament.id }))
+    fun calculateTournamentCenter(tournament: Tournament): GeoPoint {
+        return TournamentUtils.findCenter(_allStages.value.data!!.filter { it!!.tournamentId == tournament.id })
     }
 
-    fun hideStages() {
+    fun chosenTournament(tournament: Tournament) {
+        _chosenTournament.value = tournament
         _stages.clear()
+        _chosenTournament.value = tournament
+        _stages.addAll(ArrayList(_allStages.value.data!!.filter { it!!.tournamentId == tournament.id }))
+    }
+
+    fun chosenStage(stage: TournamentStage) {
+        _stages.clear()
+
+        if (stage.players == null) {
+            stage.players = arrayListOf(TournamentPlayer(userID, userName, 0))
+        } else {
+            if (!stage.players!!.any { user -> user.playerUID == userID }) {
+                stage.players!!.removeAll { user -> user.playerUID == userID }
+                stage.players!!.add(TournamentPlayer(userID, userName, 0))
+            }
+        }
+
+        updateStage(stage)
     }
 
     private fun getTournaments() = viewModelScope.launch {
@@ -139,6 +152,23 @@ class MapViewModel @Inject constructor(
                 is Response.Loading -> {
                     _allStages.value =
                         StageState(data = null, isLoading = true, errorMsg = null)
+                }
+            }
+        }
+    }
+
+    private fun updateStage(stage: TournamentStage) = viewModelScope.launch {
+        tRepo.updateStage(stage).collect { result ->
+            when (result) {
+                is Response.Success -> {
+                    //Toast.makeText(context, result.data, Toast.LENGTH_SHORT).show()
+                }
+
+                is Response.Failure -> {
+                    //Toast.makeText(context, result.exception.message, Toast.LENGTH_SHORT).show()
+                }
+
+                is Response.Loading -> {
                 }
             }
         }

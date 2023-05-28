@@ -12,9 +12,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 object GameType {
-    const val BLOON_ATTACK = "Bloon Attack"
-    const val BLOON_TIME_ATTACK = "Bloon Time Attack"
-    const val BLOON_DEFENSE = "Bloon Defense"
+    const val BLOON_ATTACK = "Balloon Attack"
+    const val BLOON_TIME_ATTACK = "Balloon Time Attack"
+    const val BLOON_DEFENSE = "Balloon Defense"
 }
 
 fun Game.throwDart(velocity: Float): GameObject = GameObject().apply {
