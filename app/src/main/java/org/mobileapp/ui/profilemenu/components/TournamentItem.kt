@@ -29,6 +29,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mobileapp.domain.model.Tournament
 import org.mobileapp.domain.model.TournamentPlayer
 import org.mobileapp.domain.model.TournamentStage
+import org.mobileapp.game.GameType.BLOON_ATTACK
+import org.mobileapp.game.GameType.BLOON_DEFENSE
+import org.mobileapp.game.GameType.BLOON_TIME_ATTACK
 import org.mobileapp.viewmodel.TournamentsViewModel
 import org.osmdroid.util.GeoPoint
 
@@ -41,7 +44,7 @@ fun TournamentItem(
     delete: (Tournament) -> Unit,
     update: (Tournament) -> Unit
 ) {
-    val gameTypes = listOf("Game 1", "Game 2", "Game 3")
+    val gameTypes = listOf(BLOON_ATTACK, BLOON_TIME_ATTACK, BLOON_DEFENSE)
 
     var editingMode by remember { mutableStateOf(false) }
     var newTournamentName by remember { mutableStateOf("") }

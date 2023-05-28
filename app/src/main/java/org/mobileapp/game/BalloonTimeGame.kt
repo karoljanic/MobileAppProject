@@ -1,5 +1,6 @@
 package org.mobileapp.game
 
+import android.util.Log
 import io.github.sceneview.ar.ArSceneView
 import io.github.sceneview.ar.arcore.ArFrame
 import io.github.sceneview.ar.arcore.position
@@ -21,7 +22,6 @@ class BalloonTimeGame(
     val spawnInterval = 5.0
     var timeLeftToSpawn = spawnInterval
 
-    val balloons = mutableListOf<GameObject>()
     val darts = mutableListOf<GameObject>()
 
     override fun onAnchor() {
@@ -31,9 +31,9 @@ class BalloonTimeGame(
     override fun onUpdate(arFrame: ArFrame) {
         for (dart in darts) {
             sceneView.overlapTest(dart)?.let { hit ->
-                if (hit in balloons) {
-                    balloons.remove(hit)
-                    deleteGameObject(hit as GameObject)
+                if (hit is FloatingBalloon) {
+                    Log.i("Game", "$dart hit $hit")
+                    deleteGameObject(hit)
                 }
             }
         }
@@ -44,7 +44,6 @@ class BalloonTimeGame(
         if (timeLeftToSpawn <= 0.0) {
             if (bloonsLeft >= bloonsAtOnce) {
                 val newBloons = groupOfBloons(startingAnchor!!.pose.position, 1f, bloonsAtOnce, 0.8f)
-                balloons.addAll(newBloons)
                 bloonsLeft -= bloonsAtOnce
             }
             else {

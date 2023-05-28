@@ -1,37 +1,39 @@
 package org.mobileapp.ui
 
-import android.graphics.Color
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.ar.core.TrackingState
 import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.PlacementMode
-import io.github.sceneview.math.Position
-import org.mobileapp.domain.model.TournamentStage
-import org.mobileapp.game.BalloonGame
+import io.github.sceneview.math.Rotation
+import io.github.sceneview.math.toQuaternion
 import org.mobileapp.viewmodel.GameViewModel
-import org.mobileapp.viewmodel.TournamentsViewModel
+import kotlin.math.abs
 
 @Composable
-fun GameView(stageId: String, playerId: String, gameType: String, latitude: Double, longitude: Double, state: GameViewModel = viewModel()) {
+fun GameView(
+    stageId: String,
+    playerId: String,
+    gameType: String,
+    latitude: Double,
+    longitude: Double,
+    gameViewModel: GameViewModel = viewModel()
+) {
     val draggableState = rememberDraggableState(onDelta = {})
+    val info = remember { mutableStateOf("Placing Game") }
 
     Box(
         modifier = Modifier
@@ -40,42 +42,66 @@ fun GameView(stageId: String, playerId: String, gameType: String, latitude: Doub
                 draggableState,
                 Orientation.Vertical,
                 reverseDirection = true,
-                onDragStopped = { state.game?.onSwipe(0f, it) })
+                onDragStopped = { gameViewModel.game?.onSwipe(0f, it) })
     ) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
-            nodes = state.nodes,
+            nodes = gameViewModel.nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->
                 arSceneView.geospatialEnabled = true
+                arSceneView.planeRenderer.isEnabled = false
             },
             onSessionCreate = { session ->
                 session.instantPlacementEnabled = false
 
-                state.newAnchorVis(this)
-
-                state.newGame(this)
+                gameViewModel.newGame(this, gameType)
             },
             onFrame = { arFrame ->
-                state.updateGame(arFrame)
+                gameViewModel.updateGame(arFrame)
+                if (!gameViewModel.isPlaced) {
+                    val earth = this.arSession?.earth ?: return@ARScene
+
+                    if (earth.trackingState == TrackingState.TRACKING) {
+                        val latDiff = abs(earth.cameraGeospatialPose.latitude - latitude)
+                        val longDiff = abs(earth.cameraGeospatialPose.longitude - longitude)
+
+                        if (longDiff in 0.00003..0.00015 && latDiff in 0.00002..0.00009) {
+                            // Place the earth anchor at the same altitude as that of the camera to make it easier to view.
+                            val altitude = earth.cameraGeospatialPose.altitude - 1f
+                            val rotation = Rotation(0f, 0f, 0f)
+
+                            val earthAnchor = earth.createAnchor(
+                                latitude,
+                                longitude,
+                                altitude,
+                                rotation.toQuaternion().toFloatArray()
+                            )
+
+                            Log.i("Game", "Player ${earth.cameraGeospatialPose.latitude}, ${earth.cameraGeospatialPose.longitude}, ${earth.cameraGeospatialPose.altitude}")
+                            Log.i("Game", "Game $latitude, $longitude, $altitude")
+
+                            gameViewModel.anchorGame(earthAnchor)
+                        } else {
+                            info.value = "$latDiff $longDiff"
+                        }
+                    }
+                }
             },
             onTap = { hitResult ->
-                state.onHitGame(hitResult)
+                gameViewModel.onHitGame(hitResult)
             }
         )
 
-        if (!state.isPlaced) {
-            Button(
-                onClick = {
-                    state.placeAnchorVis()
-                },
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
-                Text(text = "Place game")
-            }
+        if (!gameViewModel.isPlaced) {
+            Text(info.value, modifier = Modifier.align(Alignment.BottomCenter))
         }
-        
-        Text(text = "Score ${state.score}", modifier =  Modifier.align(Alignment.TopCenter))
+
+        Column(modifier = Modifier.align(Alignment.TopCenter)) {
+            Text(text = "Score ${gameViewModel.score}", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+            Text(text = "Time ${gameViewModel.time}", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+        }
+
     }
 }
 

@@ -27,24 +27,22 @@ class BalloonGame(
         sceneView, nodes,
     ) {
 
-    var bloonsLeft = 20
+    var bloonsLeft = 5
     var timeLeft = 30.0
 
-    val balloons = mutableListOf<GameObject>()
     val darts = mutableListOf<GameObject>()
 
     override fun onAnchor() {
         val newBloons = groupOfBloons(startingAnchor!!.pose.position, 1f, bloonsLeft, 0.8f)
-        balloons.addAll(newBloons)
     }
 
     override fun onUpdate(arFrame: ArFrame) {
         for (dart in darts) {
             sceneView.overlapTest(dart)?.let { hit ->
-                if (hit in balloons) {
-                    balloons.remove(hit)
-                    onScoreChange((hit as FloatingBalloon).score)
-                    deleteGameObject(hit as GameObject)
+                if (hit is FloatingBalloon) {
+                    Log.i("Game", "$dart hit $hit")
+                    onScoreChange(hit.score)
+                    deleteGameObject(hit)
                     bloonsLeft -= 1
                 }
             }

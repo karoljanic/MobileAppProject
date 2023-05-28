@@ -1,6 +1,8 @@
 package org.mobileapp.game
 
 import android.util.Log
+import com.google.ar.sceneform.collision.Box
+import com.google.ar.sceneform.collision.Sphere
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.TWO_PI
 import io.github.sceneview.math.Position
@@ -8,6 +10,12 @@ import io.github.sceneview.math.toFloat3
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+
+object GameType {
+    const val BLOON_ATTACK = "Bloon Attack"
+    const val BLOON_TIME_ATTACK = "Bloon Time Attack"
+    const val BLOON_DEFENSE = "Bloon Defense"
+}
 
 fun Game.throwDart(velocity: Float): GameObject = GameObject().apply {
     Log.i("Game", "Dart Thrown")
@@ -28,15 +36,17 @@ fun Game.throwDart(velocity: Float): GameObject = GameObject().apply {
 
     val throwSpeed = (velocity / (middleY * 2f)) * 0.2f
 
-    this.velocity = dir * 0.5f
+    this.velocity = dir * 1.5f
     this.velocity.y += throwSpeed
 
     this.acceleration.y = -0.1f
 
+    //collisionShape = Sphere(5.0f)
+
     addGameObject(this)
 }
 
-fun Game.groupOfBloons(center: Position, maxRadius: Float, count: Int, maxHeight: Float) : List<GameObject> {
+fun Game.groupOfBloons(center: Position, maxRadius: Float, count: Int, maxHeight: Float) : List<FloatingBalloon> {
     val list = mutableListOf<FloatingBalloon>()
 
     for (i in 1..count) {
@@ -50,6 +60,8 @@ fun Game.groupOfBloons(center: Position, maxRadius: Float, count: Int, maxHeight
             else {
                 loadModel("models/Bloon.glb")
             }
+
+            //collisionShape = Sphere(10.0f)
 
             Log.i("Game", "Spawned")
 
@@ -69,14 +81,16 @@ fun Game.groupOfBloons(center: Position, maxRadius: Float, count: Int, maxHeight
             this.velocity.z = (Random.nextFloat() * 2 - 1) / 10f
 
             addGameObject(this)
+
+            list.add(this)
         }
     }
 
     return list
 }
 
-fun Game.groupOfAggBloons(target: Position, radius: Float, count: Int) : List<GameObject> {
-    val list = mutableListOf<FloatingBalloon>()
+fun Game.groupOfAggBloons(target: Position, radius: Float, count: Int) : List<AggresiveBalloon> {
+    val list = mutableListOf<AggresiveBalloon>()
 
     for (i in 1..count) {
         AggresiveBalloon(target).apply {
@@ -94,6 +108,8 @@ fun Game.groupOfAggBloons(target: Position, radius: Float, count: Int) : List<Ga
             this.position = targetPosition + Float3(x,0f,y)
 
             addGameObject(this)
+
+            list.add(this)
         }
     }
 

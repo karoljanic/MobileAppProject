@@ -25,7 +25,7 @@ import org.mobileapp.ui.profilemenu.components.Leaderboard
 import org.mobileapp.ui.profilemenu.components.MyTournaments
 import org.mobileapp.ui.profilemenu.components.ProfileView
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfileMenuView(
     navigateToAuthScreen: () -> Unit

@@ -21,7 +21,7 @@ class BalloonDefenseGame(
     var spawnInterval = 5.0
     var timeLeftToSpawn = spawnInterval
 
-    val balloons = mutableListOf<GameObject>()
+    val balloons = mutableListOf<AggresiveBalloon>()
     val darts = mutableListOf<GameObject>()
 
     override fun onAnchor() {}
@@ -29,9 +29,9 @@ class BalloonDefenseGame(
     override fun onUpdate(arFrame: ArFrame) {
         for (dart in darts) {
             sceneView.overlapTest(dart)?.let { hit ->
-                if (hit in balloons) {
+                if (hit is AggresiveBalloon) {
                     balloons.remove(hit)
-                    deleteGameObject(hit as GameObject)
+                    deleteGameObject(hit)
                 }
             }
         }

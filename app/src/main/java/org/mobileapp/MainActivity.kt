@@ -9,7 +9,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.MaterialTheme
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mobileapp.navigation.NavGraph
 import org.mobileapp.service.TrackerService
@@ -21,9 +21,6 @@ import org.osmdroid.config.Configuration
 @AndroidEntryPoint
 @ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {
-    private lateinit var navController: NavHostController
-    private val loginViewModel by viewModels<LoginViewModel>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,8 +31,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                navController = rememberAnimatedNavController()
-                NavGraph(navController = navController)
+                NavGraph()
             }
         }
 
