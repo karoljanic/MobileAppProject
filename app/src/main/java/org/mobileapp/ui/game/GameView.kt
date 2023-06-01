@@ -69,13 +69,13 @@ fun GameView(
         modifier = Modifier
             .fillMaxSize()
             .draggable(draggableState,
-                Constants.DRAGGABLE_ORIENTATION,
-                Constants.DRAGGABLE_REVERSE_DIRECTION,
+                orientation = Constants.DRAGGABLE_ORIENTATION,
+                reverseDirection = Constants.DRAGGABLE_REVERSE_DIRECTION,
                 onDragStopped = { gameViewModel.game?.onSwipe(0f, it) })
     ) {
         ARScene(modifier = Modifier.fillMaxSize(),
             nodes = gameViewModel.nodes,
-            planeRenderer = true,
+            planeRenderer = false,
             onCreate = { arSceneView ->
                 arSceneView.geospatialEnabled = true
                 arSceneView.planeRenderer.isEnabled = false

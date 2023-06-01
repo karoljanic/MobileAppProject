@@ -70,11 +70,11 @@ fun NavGraph() {
             val stageId = it.arguments?.getString("sid")
             val playerId = it.arguments?.getString("pid")
 
-            BackHandler(true) { }
+            //BackHandler(true) { }
 
             GameView(
                 stageId!!, playerId!!, gameType!!, latitude!!.toDouble(), longitude!!.toDouble(),
-                {/* navController.popBackStack() */}
+                { navController.popBackStack() }
             )
         }
     }

@@ -18,7 +18,7 @@ class BalloonGame(
     ) {
 
     var bloonsLeft = 5
-    var timeLeft = 30.0
+    var timeLeft = 60.0
 
     val darts = mutableListOf<GameObject>()
 

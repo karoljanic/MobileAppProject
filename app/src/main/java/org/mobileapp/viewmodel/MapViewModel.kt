@@ -3,6 +3,7 @@ package org.mobileapp.viewmodel
 
 import android.location.Location
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -46,8 +47,8 @@ class MapViewModel @Inject constructor(
 
     private val _allStages = mutableStateOf(StageState())
 
-    private val _stages = mutableListOf<TournamentStage?>()
-    val stages: MutableList<TournamentStage?> = _stages
+    private val _stages = mutableStateListOf<TournamentStage?>()
+    val stages = _stages
 
     private val _chosenTournament = mutableStateOf(Tournament())
 
